@@ -417,7 +417,7 @@ if __name__ == '__main__':
 
             OpenOrClose : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
                 HomeWindow,
-                text= 'abrir o cerrar al iniciar',
+                text= 'Abrir o cerrar al iniciar',
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#0077ff',

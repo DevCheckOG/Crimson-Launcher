@@ -3,7 +3,7 @@
 # Crimson Launcher
 
 > [!NOTE]  
-> Este repositorio pertenece a los colaboradores de Crimson Launcher.
+> **Este repositorio pertenece a los colaboradores de Crimson Launcher.**
 
 > [!WARNING]
 > **Este proyecto esta en continuo desarrollo, puede haber bugs.**
