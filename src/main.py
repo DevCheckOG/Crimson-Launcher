@@ -35,10 +35,10 @@ import json
 import getpass
 import platform
 import shutil
-import subprocess
 import sys
 from typing import List, Literal
 import webbrowser
+import minecraft_launcher_lib
 import psutil
 import jdk
 import customtkinter
@@ -70,6 +70,12 @@ if __name__ == '__main__':
             self.RAM_ASSIGNED : int = 500
             self.PATH_ASSETS : str = os.getcwd().replace('\\', '/') + '/assets'
             self.COLOR : str = '#333333'
+            self.MINECRAFT_VANILLA_RELEASES : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'release']
+            self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'snapshot']
+            self.FABRIC_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == True]
+            self.FABRIC_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == False]
+            self.QUILT_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == True]
+            self.QUILT_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == False]
 
             self.checker()
 
@@ -262,7 +268,201 @@ if __name__ == '__main__':
             def paypal() -> None:
 
                 webbrowser.open_new_tab(constants.PAYPAL.value) 
-                return 
+                return
+            
+            def versions_and_mods() -> None:
+
+                def fabricmc() -> None:
+
+                    webbrowser.open_new_tab(constants.FABRICMC.value)
+                    return
+
+                VersionsAndMods.configure(state= 'disabled')
+
+                for name in FrameDecorationCenter.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkButton):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkLabel):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkSwitch):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                        name[1].place_forget()
+                        continue   
+
+                InstallVanillaVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Vanilla',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/vanilla.png'), size= (96, 96))
+
+                )
+                InstallVanillaVersion.place_configure(relx= 0.0_6, rely= 0.2_7, anchor= 'sw')  
+
+                SelectVanillaReleaseVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.MINECRAFT_VANILLA_RELEASES
+                )
+                SelectVanillaReleaseVersion.place_configure(relx= 0.0_7, rely= 0.5_1, anchor= 'sw')
+                
+                SelectVanillaSnapshotVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.MINECRAFT_VANILLA_SNAPSHOTS
+                )
+                SelectVanillaSnapshotVersion.place_configure(relx= 0.0_7, rely= 0.7_5, anchor= 'sw')
+
+                InstallFabricVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Fabric',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/fabric.png'), size= (96, 96))
+
+                )
+                InstallFabricVersion.place_configure(relx= 0.3_9, rely= 0.2_7, anchor= 'sw')
+
+                SelectFabricReleaseVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.FABRIC_RELEASES
+                )
+                SelectFabricReleaseVersion.place_configure(relx= 0.4, rely= 0.5_1, anchor= 'sw')
+
+                SelectFabricSnapshotVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.FABRIC_SNAPSHOTS
+                )
+                SelectFabricSnapshotVersion.place_configure(relx= 0.4, rely= 0.7_5, anchor= 'sw')
+
+                FabricMC : customtkinter.CTkButton = customtkinter.CTkButton(
+                    FrameDecorationCenter,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/fabric.png'), size= (26, 26)),
+                    height= 40,
+                    font= ('Roboto', 15),
+                    text_color= 'white',
+                    text= 'FabricMC',
+                    command= fabricmc,
+                    compound= 'left',
+                    hover= False
+                )
+                FabricMC.place_configure(relx= 0.4_3, rely= 0.8_8, anchor= 'sw')
+
+                InstallQuiltVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Quilt',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/quilt.png'), size= (96, 96))
+
+                )
+                InstallQuiltVersion.place_configure(relx= 0.7_3, rely= 0.2_7, anchor= 'sw')
+
+                SelectQuiltReleaseVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.QUILT_RELEASES
+                )
+                SelectQuiltReleaseVersion.place_configure(relx= 0.7_4, rely= 0.5_1, anchor= 'sw')
+
+                SelectQuiltSnapshotVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.QUILT_SNAPSHOTS
+                )
+                SelectQuiltSnapshotVersion.place_configure(relx= 0.7_4, rely= 0.7_5, anchor= 'sw')
 
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
@@ -329,7 +529,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
-                border_color= '#70ceff'
+                border_color= '#70ceff',
+                command= versions_and_mods
             )
             VersionsAndMods.place_configure(relx= 0.2_5, rely= 0.1, anchor= 'n')
 
@@ -374,7 +575,7 @@ if __name__ == '__main__':
             FrameDecorationCenter.place_configure(relx= 0.09, rely= 0.9_1, anchor= 'sw', relheight= 0.6_3, relwidth= 0.7_2)
 
             LabelLaunch : customtkinter.CTkLabel = customtkinter.CTkLabel(
-                HomeWindow,
+                FrameDecorationCenter,
                 text= ' Lanzar',
                 compound= 'left',
                 font= ('Roboto', 30),
@@ -383,10 +584,10 @@ if __name__ == '__main__':
                 fg_color= '#232323',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/launch.png'), size= (96, 96))
             )
-            LabelLaunch.place_configure(relx= 0.1_3, rely= 0.4_5, anchor= 'sw')
+            LabelLaunch.place_configure(relx= 0.0_6, rely= 0.2_7, anchor= 'sw')
 
             LaunchVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
-                HomeWindow,
+                FrameDecorationCenter,
                 height= 40,
                 corner_radius= 20,
                 bg_color= '#232323',
@@ -401,10 +602,10 @@ if __name__ == '__main__':
                 button_color= '#0077ff',
                 values= ['Test']
             )
-            LaunchVersion.place_configure(relx= 0.1_4, rely= 0.6_3, anchor= 'sw')
+            LaunchVersion.place_configure(relx= 0.0_7, rely= 0.5_2, anchor= 'sw')
 
             OptimizationTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
-                HomeWindow,
+                FrameDecorationCenter,
                 text= ' Optimización',
                 compound= 'left',
                 font= ('Roboto', 30),
@@ -414,10 +615,10 @@ if __name__ == '__main__':
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/optimize.png'), size= (96, 96))
 
             )
-            OptimizationTitle.place_configure(relx= 0.7_6, rely= 0.4_5, anchor= 'se')
+            OptimizationTitle.place_configure(relx= 0.9_3, rely= 0.2_7, anchor= 'se')
 
             OptimizeJavaArgs : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
-                HomeWindow,
+                FrameDecorationCenter,
                 text= ' Optimizar Java',
                 text_color= '#70ceff',
                 bg_color= '#232323',
@@ -431,10 +632,10 @@ if __name__ == '__main__':
                 height= 60,
 				width= 100
             ) 
-            OptimizeJavaArgs.place_configure(relx= 0.7_3, rely= 0.5_5, anchor= 'se')
+            OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
 
             OpenOrClose : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
-                HomeWindow,
+                FrameDecorationCenter,
                 text= 'Abrir o cerrar al iniciar',
                 text_color= '#70ceff',
                 bg_color= '#232323',
@@ -448,7 +649,7 @@ if __name__ == '__main__':
                 height= 60,
 				width= 100
             ) 
-            OpenOrClose.place_configure(relx= 0.7_5, rely= 0.6_3, anchor= 'se')
+            OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
         
             HomeWindow.mainloop()
             

@@ -41,3 +41,5 @@ class constants(Enum):
     GITHUB : str = 'https://github.com/DevCheckOG/Crimson-Project'
     PAYPAL : str = 'https://paypal.me/DevCheck'
 
+    FABRICMC : str = 'https://fabricmc.net/'
+
