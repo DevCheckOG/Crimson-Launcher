@@ -37,3 +37,7 @@ class constants(Enum):
     VERSION : str = 'v1.0.0'
     CREATORS : str = '@DevCheckOG'
 
+    DISCORD : str = 'https://discord.com/invite/DWfuQRsxwb'
+    GITHUB : str = 'https://github.com/DevCheckOG/Crimson-Project'
+    PAYPAL : str = 'https://paypal.me/DevCheck'
+

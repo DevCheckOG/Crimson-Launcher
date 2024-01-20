@@ -30,14 +30,15 @@ SOFTWARE.
 
 """
 
-
 import os
 import json
 import getpass
 import platform
 import shutil
+import subprocess
 import sys
 from typing import List, Literal
+import webbrowser
 import psutil
 import jdk
 import customtkinter
@@ -69,7 +70,6 @@ if __name__ == '__main__':
             self.RAM_ASSIGNED : int = 500
             self.PATH_ASSETS : str = os.getcwd().replace('\\', '/') + '/assets'
             self.COLOR : str = '#333333'
-            self.DEBUG_TERMINAL : bool = False
 
             self.checker()
 
@@ -248,7 +248,22 @@ if __name__ == '__main__':
                 HomeWindow.withdraw()
 
                 return self.terminate()
-           
+            
+            def discord() -> None:
+
+                webbrowser.open_new_tab(constants.DISCORD.value)
+                return
+
+            def github() -> None:
+
+                webbrowser.open_new_tab(constants.GITHUB.value)   
+                return
+
+            def paypal() -> None:
+
+                webbrowser.open_new_tab(constants.PAYPAL.value) 
+                return 
+
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
@@ -274,7 +289,8 @@ if __name__ == '__main__':
                 fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/discord.png'), size= (96, 96)),
                 height= 35,
-                text= None
+                text= None,
+                command= discord
             )
             Discord.place_configure(relx= 0.99, rely= 0.0_8, anchor= 'ne')
 
@@ -285,7 +301,8 @@ if __name__ == '__main__':
                 fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/github.png'), size= (96, 96)),
                 height= 35,
-                text= None
+                text= None,
+                command= github
             )
             Github.place_configure(relx= 0.99, rely= 0.4_8, anchor= 'e')
 
@@ -296,7 +313,8 @@ if __name__ == '__main__':
                 fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/donate.png'), size= (96, 96)),
                 height= 35,
-                text= None
+                text= None,
+                command= paypal
             )
             Donate.place_configure(relx= 0.99, rely= 0.8_8, anchor= 'se')
 
@@ -405,8 +423,8 @@ if __name__ == '__main__':
                 bg_color= '#232323',
                 fg_color= '#0077ff',
                 font= ('Roboto', 18),
-                onvalue= 'si',
-                offvalue= 'no',
+                onvalue= True,
+                offvalue= False,
                 button_color= 'white',
                 button_hover_color= 'white',
                 progress_color= '#70ceff',
@@ -422,8 +440,8 @@ if __name__ == '__main__':
                 bg_color= '#232323',
                 fg_color= '#0077ff',
                 font= ('Roboto', 18),
-                onvalue= 'si',
-                offvalue= 'no',
+                onvalue= True,
+                offvalue= False,
                 button_color= 'white',
                 button_hover_color= 'white',
                 progress_color= '#70ceff',
