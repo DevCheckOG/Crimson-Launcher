@@ -2,9 +2,11 @@
 
 # Crimson Launcher
 
-# ⚠️ Este repositorio es oficial para Crimson Launcher.
+> [!NOTE]  
+> Este repositorio pertenece a los colaboradores de Crimson Launcher.
 
-- ⚠️ **Este Launcher esta en continuo desarrollo, puede haber bugs.**
+> [!CAUTION]
+> **Este Launcher esta en continuo desarrollo, puede haber bugs.**.
 
 ### Requisitos ⭐
        
