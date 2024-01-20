@@ -5,7 +5,7 @@
 > [!NOTE]  
 > Este repositorio pertenece a los colaboradores de Crimson Launcher.
 
-> [!WARINING]
+> [!WARNING]
 > **Este proyecto esta en continuo desarrollo, puede haber bugs.**.
 
 ### Requisitos ⭐
