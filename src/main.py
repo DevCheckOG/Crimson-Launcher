@@ -4,6 +4,32 @@
 
 """
 
+"""
+
+MIT License
+
+Copyright (c) 2024 DevCheck
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
 
 import os
 import json
@@ -21,14 +47,14 @@ from PIL import Image
 from tkinter import messagebox
 from concurrent.futures import ThreadPoolExecutor
 from utils import check_internet
-from constants import VERSION
+from constants import constants
 
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     if not platform.platform().startswith('Windows'):
-        messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= 'Sistema operativo incompatible.', type= 'ok')
+        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         raise RuntimeError('Sistema operativo incompatible.')
 
     class CrimsonLauncher:
@@ -51,10 +77,10 @@ if __name__ == '__main__':
 
             try:
                 jdk.install(version= version, operating_system= jdk.OperatingSystem.WINDOWS, path= self.PATH + 'Java/', arch= jdk.Architecture.X64)
-                messagebox.showinfo(title= f'Crimson Launcher - {VERSION}', message= f'Java {version} instalado correctamente.', type = 'ok')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Java {version} instalado correctamente.', type = 'ok')
 
             except:    
-                messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= f'No se logró instalar Java {version} correctamente.')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No se logró instalar Java {version} correctamente.')
                 raise RuntimeError(f'No se instaló correctamente Java {version}')    
 
         def checker(self) -> None:
@@ -62,12 +88,12 @@ if __name__ == '__main__':
             internet : bool = check_internet()
 
             if internet == False:
-                messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= 'No hay conexión a internet.', type= 'ok')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No hay conexión a internet.', type= 'ok')
                 self.CRIMSON_BACKGROUND.shutdown()
                 raise RuntimeError('No hay conexión a internet.')
 
             elif not os.path.exists(self.BASE_PATH):
-                messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= f'No existe la ruta principal de programas {self.BASE_PATH}.', type= 'ok')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la ruta principal de programas {self.BASE_PATH}.', type= 'ok')
                 self.CRIMSON_BACKGROUND.shutdown(cancel_futures= True)
                 raise RuntimeError(f'No existe la ruta principal {self.BASE_PATH}')
             
@@ -110,7 +136,7 @@ if __name__ == '__main__':
             else:
 
                 if not os.path.exists(self.PATH + 'Java/'):
-                    messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= f'No existe la carpeta principal de Java {self.PATH}.', type= 'ok')
+                    messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta principal de Java {self.PATH}.', type= 'ok')
                     self.CRIMSON_BACKGROUND.shutdown()
                     raise RuntimeError(f'No existe la carpeta principal de Java {self.PATH}.')
                 
@@ -180,7 +206,7 @@ if __name__ == '__main__':
                 return self.main()
 
             StartWindow : customtkinter.CTk = customtkinter.CTk()   
-            StartWindow.title(f'Crimson Launcher - {VERSION}')
+            StartWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             StartWindow.config(bg= self.COLOR)
             StartWindow.resizable(False, False)
             StartWindow.geometry('580x620')
@@ -224,7 +250,7 @@ if __name__ == '__main__':
                 return self.terminate()
            
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
-            HomeWindow.title(f'Crimson Launcher - {VERSION}')
+            HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
             HomeWindow.after(300, HomeWindow.iconbitmap, f'{self.PATH_ASSETS}/logo.ico')
             HomeWindow.geometry('1290x720')
@@ -419,7 +445,7 @@ if __name__ == '__main__':
         USERS_PATH : str = 'C:/Users'
 
         if not os.path.exists(USERS_PATH):
-            messagebox.showerror(title= f'Crimson Launcher - {VERSION}', message= f'No existe la carpeta {USERS_PATH} del sistema.', type= 'ok')
+            messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta {USERS_PATH} del sistema.', type= 'ok')
             raise RuntimeError(f'No existe la carpeta {USERS_PATH} del sistema.')
         
         for user in [username for username in os.listdir('C:/Users') if username.find('.') == -1 and username == 'ingke' or username == getpass.getuser() or username == getpass.getuser().lower()]:
