@@ -21,7 +21,7 @@
 ### Características 💎
 
 - **Soporte para cuentas no premium.**
-- **Soporte de Fabric, Optifine y Vanilla.**
+- **Soporte de Fabric, Optifine, Vanilla y Quilt.**
 - **Instalación automática de mods provenientes de** *Modrinth.*
 - **Carpeta de .minecraft personalizada.**
 - **Soporte para mods de Fabric.**
