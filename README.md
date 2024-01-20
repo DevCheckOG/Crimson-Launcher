@@ -2,7 +2,7 @@
 
 # Crimson Launcher
 
-# ⚠️ Este repositorio es oficial para los desarrolladores de Crimson Project.
+# ⚠️ Este repositorio es oficial para Crimson Project.
 
 Bienvenido al repositorio para los desarrolladores de **Crimson Launcher**.
 
