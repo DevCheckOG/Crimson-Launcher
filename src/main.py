@@ -180,7 +180,11 @@ if __name__ == '__main__':
 
                 with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
                     config = json.load(read)
-                    self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']            
+                    self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']    
+
+                    if config['java']['path'] != None:
+
+                        self.JAVA_CURRENT = config['java']['path']        
 
                 jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
@@ -274,6 +278,42 @@ if __name__ == '__main__':
                 webbrowser.open_new_tab(constants.PAYPAL.value)  
                 return
             
+            def select_java_version(version : str) -> None:
+
+                if version == self.JAVA_CURRENT: return
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                    config = json.load(read)
+                    config['java']['path'] = version
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)
+
+                self.JAVA_CURRENT = version    
+
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'{version} ahora es el Java seleccionado.', type= 'ok', parent= HomeWindow)
+                return        
+            
+            def assign_ram(value : int) -> None:
+
+                if value <= 999: value = 1000
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                    config = json.load(read)
+                    config['launcher settings']['ram_asigned'] = round(value)
+                    
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)
+
+                self.RAM_ASSIGNED = round(value)        
+
+                AssignedMemoryTitle.configure(text= f'Memoria asignada: {round(self.RAM_ASSIGNED)} MB')    
+                return
+            
             def open_or_close() -> None:
 
                 self.OPEN_OR_CLOSE = OpenOrClose.get()
@@ -304,6 +344,179 @@ if __name__ == '__main__':
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El launcher se mantendra abierto cuando el juego se inicie.', type= 'ok', parent= HomeWindow)
                 return
             
+            def accounts() -> None:
+
+                VersionsAndMods.configure(state= 'normal')
+                Launch.configure(state= 'normal')
+                Accounts.configure(state= 'disabled')
+
+                def premium() -> None:
+                    
+                    messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)
+                    return
+
+                for name in FrameDecorationCenter.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkButton):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkLabel):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkSwitch):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                        name[1].place_forget()
+                        continue   
+
+                    if isinstance(name[1], customtkinter.CTkSlider):
+
+                        name[1].place_forget()
+                        continue    
+
+                    if isinstance(name[1], customtkinter.CTkEntry):
+
+                        name[1].place_forget()
+                        continue
+
+                NoPremiumAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' No Premium',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/no_premium.png'), size= (96, 96))
+
+                )
+                NoPremiumAccount.place_configure(relx= 0.0_3, rely= 0.2_7, anchor= 'sw')    
+
+                EntryNoPremiumAccount : customtkinter.CTkEntry = customtkinter.CTkEntry(
+                    FrameDecorationCenter,
+                    placeholder_text= 'Nombre de la nueva cuenta.',
+                    placeholder_text_color= 'white',
+                    text_color= 'white',
+                    font=('Roboto', 15),
+                    width= 210,
+                    height= 35,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    fg_color= '#232323'
+                )
+                EntryNoPremiumAccount.place_configure(relx= 0.0_8, rely= 0.4_1, anchor= 'sw')
+
+                CreateNoPremiumAccount : customtkinter.CTkButton = customtkinter.CTkButton(
+                    FrameDecorationCenter,
+                    height= 37,
+                    bg_color= '#232323',
+                    fg_color= '#0077ff',
+                    corner_radius= 20,
+                    text= 'Crear cuenta',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/create.png'), size= (22, 22)),
+                    compound= 'left',
+                    font= ('Roboto', 15),
+                    border_width= 2,
+                    border_color= '#70ceff',
+                )
+                CreateNoPremiumAccount.place_configure(relx= 0.1_1, rely= 0.5_5, anchor= 'sw')
+
+                SelectAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Selecionar',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/select.png'), size= (96, 96))
+
+                )
+                SelectAccount.place_configure(relx= 0.5, rely= 0.1_6, anchor= 'center') 
+
+                SelectAccount : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= ['Proximamente']
+                )
+                SelectAccount.place_configure(relx= 0.5_2, rely= 0.3_7, anchor= 'center')
+
+                PremiumAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Premium',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/premium.png'), size= (96, 96))
+
+                )
+                PremiumAccount.place_configure(relx= 0.9_5, rely= 0.0_7, anchor= 'ne')
+
+                EntryGmailPremiumAccount : customtkinter.CTkEntry = customtkinter.CTkEntry(
+                    FrameDecorationCenter,
+                    placeholder_text= 'Correo de la cuenta.',
+                    placeholder_text_color= 'white',
+                    text_color= 'white',
+                    font=('Roboto', 15),
+                    width= 210,
+                    height= 35,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    fg_color= '#232323'
+                )
+                EntryGmailPremiumAccount.place_configure(relx= 0.9_6, rely= 0.3_4, anchor= 'ne')
+
+                EntryPasswordPremiumAccount : customtkinter.CTkEntry = customtkinter.CTkEntry(
+                    FrameDecorationCenter,
+                    placeholder_text= 'Contraseña de la cuenta.',
+                    placeholder_text_color= 'white',
+                    text_color= 'white',
+                    font=('Roboto', 15),
+                    width= 210,
+                    height= 35,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    fg_color= '#232323'
+                )
+                EntryPasswordPremiumAccount.place_configure(relx= 0.9_6, rely= 0.4_7, anchor= 'ne')
+
+                LoginPremiumAccount : customtkinter.CTkButton = customtkinter.CTkButton(
+                    FrameDecorationCenter,
+                    height= 37,
+                    bg_color= '#232323',
+                    fg_color= '#0077ff',
+                    corner_radius= 20,
+                    text= 'Iniciar Sesión',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/create.png'), size= (22, 22)),
+                    compound= 'left',
+                    font= ('Roboto', 15),
+                    border_width= 2,
+                    border_color= '#70ceff',
+                    command= premium
+                )
+                LoginPremiumAccount.place_configure(relx= 0.9_3_7, rely= 0.6, anchor= 'ne')
+            
             def launch() -> None:
 
                 VersionsAndMods.configure(state= 'normal')
@@ -332,13 +545,26 @@ if __name__ == '__main__':
                         name[1].place_forget()
                         continue   
 
+                    if isinstance(name[1], customtkinter.CTkSlider):
+
+                        name[1].place_forget()
+                        continue    
+
+                    if isinstance(name[1], customtkinter.CTkEntry):
+
+                        name[1].place_forget()
+                        continue
+
                 LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')  
                 LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
                 OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
                 OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
                 OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
-                JavaTitle.place_configure(relx= 0.3_5, rely= 0.2_7, anchor= 'sw')
-                SelectJavaVersion.place_configure(relx= 0.3_6, rely= 0.5_0, anchor= 'sw')
+                JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
+                SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.4_5_9, anchor= 'center')
+                AssignMemory.place_configure(relx= 0.4_8, rely= 0.5_9, anchor= 'center')
+                AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_0, anchor= 'center')
+                TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_5, anchor= 'center')
 
                 # Versions
 
@@ -368,11 +594,13 @@ if __name__ == '__main__':
 
                     self.JAVA_LIST.insert(0, 'No hay versiones instaladas en las librerías locales.')
 
-                for java_local in os.listdir(self.PATH + 'Java/'):    
+                else:    
 
-                    if os.path.exists(self.PATH + 'Java/' + java_local + '/bin/java.exe'):
+                    for java_local in os.listdir(self.PATH + 'Java/'):    
 
-                        self.JAVA_LIST.append(self.PATH + 'Java/' + java_local + '/bin/java.exe')
+                        if os.path.exists(self.PATH + 'Java/' + java_local + '/bin/java.exe'):
+
+                            self.JAVA_LIST.append(self.PATH + 'Java/' + java_local + '/bin/java.exe')
 
                 for java_system in ['C:/Program Files/' + folder for folder in os.listdir('C:/Program Files/') if folder.find('.') == -1]:
 
@@ -386,10 +614,12 @@ if __name__ == '__main__':
 
                     except:
 
-                        pass              
+                        pass          
+
+                if self.JAVA_CURRENT != '':
+                    SelectJavaVersion.set(self.JAVA_CURRENT)        
 
                 if len(self.JAVA_LIST) <= 1 and self.JAVA_LIST[0] == 'No hay versiones instaladas en las librerías locales.':
-
                     SelectJavaVersion.configure(state= 'disabled')       
                 
             def versions_and_mods() -> None:
@@ -406,6 +636,7 @@ if __name__ == '__main__':
 
                 VersionsAndMods.configure(state= 'disabled')
                 Launch.configure(state= 'normal')
+                Accounts.configure(state= 'normal')
 
                 for name in FrameDecorationCenter.children.items():
 
@@ -428,6 +659,16 @@ if __name__ == '__main__':
 
                         name[1].place_forget()
                         continue   
+
+                    if isinstance(name[1], customtkinter.CTkSlider):
+
+                        name[1].place_forget()
+                        continue    
+
+                    if isinstance(name[1], customtkinter.CTkEntry):
+
+                        name[1].place_forget()
+                        continue
 
                 InstallVanillaVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
@@ -541,7 +782,7 @@ if __name__ == '__main__':
                     compound= 'left',
                     hover= False
                 )
-                FabricMC.place_configure(relx= 0.4_3, rely= 0.8_8, anchor= 'sw')
+                FabricMC.place_configure(relx= 0.4_2_5, rely= 0.8_8, anchor= 'sw')
 
                 InstallQuiltVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
@@ -707,7 +948,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
-                border_color= '#70ceff'
+                border_color= '#70ceff',
+                command= accounts
             )
             Accounts.place_configure(relx= 0.7_5, rely= 0.1, anchor= 'n')
 
@@ -774,7 +1016,7 @@ if __name__ == '__main__':
                 fg_color= '#232323',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/java.png'), size= (96, 96))
             )
-            JavaTitle.place_configure(relx= 0.3_5, rely= 0.2_7, anchor= 'sw')
+            JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
 
             if not os.path.exists(self.PATH + 'Java/') or len(os.listdir(self.PATH + 'Java/')) == 0:
                 self.JAVA_LIST.insert(0, 'No hay versiones instaladas en las librerías locales.')
@@ -812,13 +1054,53 @@ if __name__ == '__main__':
                 width= 210,
                 fg_color= '#0077ff', 
                 button_color= '#0077ff',
-                values= self.JAVA_LIST
+                values= self.JAVA_LIST,
+                command= select_java_version
             )
-            SelectJavaVersion.place_configure(relx= 0.3_6, rely= 0.5_0, anchor= 'sw')
+            SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.4_5_9, anchor= 'center')
+
+            if self.JAVA_CURRENT != '':
+                SelectJavaVersion.set(self.JAVA_CURRENT)
 
             if len(self.JAVA_LIST) <= 1 and self.JAVA_LIST[0] == 'No hay versiones instaladas en las librerías locales.':
-
                 SelectJavaVersion.configure(state= 'disabled')
+
+            AssignMemory : customtkinter.CTkSlider = customtkinter.CTkSlider(
+                FrameDecorationCenter,
+                to= self.RAM_TOTAL,
+                from_= 1000,
+                width= 200,
+                height= 25,
+                bg_color= '#232323',
+                corner_radius= 20,
+                button_corner_radius= 20,
+                hover= False,
+                button_color= '#232323',
+                progress_color= '#0077ff',
+                command= assign_ram
+            )    
+            AssignMemory.place_configure(relx= 0.4_8, rely= 0.5_9, anchor= 'center')
+            AssignMemory.set(self.RAM_ASSIGNED)
+
+            AssignedMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                FrameDecorationCenter,
+                text= f'Memoria asignada: {self.RAM_ASSIGNED} MB',
+                font= ('Roboto', 15),
+                text_color= '#70ceff',
+                bg_color= '#232323',
+                fg_color= '#232323'
+            )
+            AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_0, anchor= 'center')
+
+            TotalMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                FrameDecorationCenter,
+                text= f'Memoria disponible: {round(1 * psutil.virtual_memory().total / (1024 ** 2))} MB',
+                font= ('Roboto', 15),
+                text_color= '#70ceff',
+                bg_color= '#232323',
+                fg_color= '#232323'
+            )
+            TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_5, anchor= 'center')
 
             OptimizationTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
