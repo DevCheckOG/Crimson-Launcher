@@ -30,6 +30,7 @@ SOFTWARE.
 
 """
 
+from logging import config
 import os
 import json
 import getpass
@@ -76,6 +77,10 @@ if __name__ == '__main__':
             self.FABRIC_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == False]
             self.QUILT_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == True]
             self.QUILT_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == False]
+            self.VERSIONS_LIST : List[str] = []
+            self.JAVA_CURRENT : str = ''
+            self.OPEN_OR_CLOSE : bool = False
+            self.JAVA_LIST : List[str] = []
 
             self.checker()
 
@@ -267,17 +272,141 @@ if __name__ == '__main__':
 
             def paypal() -> None:
 
-                webbrowser.open_new_tab(constants.PAYPAL.value) 
+                webbrowser.open_new_tab(constants.PAYPAL.value)  
                 return
             
+            def open_or_close() -> None:
+
+                self.OPEN_OR_CLOSE = OpenOrClose.get()
+
+                if self.OPEN_OR_CLOSE:
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                        
+                        config = json.load(read)
+                        config['launcher settings']['close_on_start'] = True
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                        json.dump(config, write, indent= 5)    
+
+                    messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El launcher se va cerrar cuando el juego se inicie.', type= 'ok', parent= HomeWindow)
+                    return
+                
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                        
+                    config = json.load(read)
+                    config['launcher settings']['close_on_start'] = False
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)    
+                
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El launcher se mantendra abierto cuando el juego se inicie.', type= 'ok', parent= HomeWindow)
+                return
+            
+            def launch() -> None:
+
+                VersionsAndMods.configure(state= 'normal')
+                Launch.configure(state= 'disabled')
+                Accounts.configure(state= 'normal')
+
+                for name in FrameDecorationCenter.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkButton):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkLabel):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkSwitch):
+
+                        name[1].place_forget()
+                        continue
+
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                        name[1].place_forget()
+                        continue   
+
+                LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')  
+                LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
+                OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
+                OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
+                OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
+                JavaTitle.place_configure(relx= 0.3_5, rely= 0.2_7, anchor= 'sw')
+                SelectJavaVersion.place_configure(relx= 0.3_6, rely= 0.5_0, anchor= 'sw')
+
+                # Versions
+
+                self.VERSIONS_LIST.clear()
+
+                if not os.path.exists(self.PATH + 'versions/') or not len(os.listdir(self.PATH + 'versions/')) == 0 and len(self.VERSIONS_LIST) == 1:
+                    
+                    self.VERSIONS_LIST.insert(0, 'No hay versiones instaladas.')
+
+                else:
+
+                    for name in os.listdir(self.PATH + 'versions/'):
+
+                        self.VERSIONS_LIST.append(name)  
+
+                LaunchVersion.configure(values= self.VERSIONS_LIST)        
+
+                if self.VERSIONS_LIST[0] == 'No hay versiones instaladas.':
+
+                    LaunchVersion.configure(state= 'disabled')   
+
+                # Java     
+                    
+                self.JAVA_LIST.clear()
+
+                if not os.path.exists(self.PATH + 'Java/') or len(os.listdir(self.PATH + 'Java/')) == 0:
+
+                    self.JAVA_LIST.insert(0, 'No hay versiones instaladas en las librerías locales.')
+
+                for java_local in os.listdir(self.PATH + 'Java/'):    
+
+                    if os.path.exists(self.PATH + 'Java/' + java_local + '/bin/java.exe'):
+
+                        self.JAVA_LIST.append(self.PATH + 'Java/' + java_local + '/bin/java.exe')
+
+                for java_system in ['C:/Program Files/' + folder for folder in os.listdir('C:/Program Files/') if folder.find('.') == -1]:
+
+                    try:
+
+                        for java in [f'/{jdk}' for jdk in os.listdir(java_system) if jdk.find('jdk') != -1 or jdk.find('java') != -1]:
+
+                            if os.path.exists(java_system + java + '/bin/java.exe'):
+
+                                self.JAVA_LIST.append(java_system + java + '/bin/java.exe')
+
+                    except:
+
+                        pass              
+
+                if len(self.JAVA_LIST) <= 1 and self.JAVA_LIST[0] == 'No hay versiones instaladas en las librerías locales.':
+
+                    SelectJavaVersion.configure(state= 'disabled')       
+                
             def versions_and_mods() -> None:
 
                 def fabricmc() -> None:
 
                     webbrowser.open_new_tab(constants.FABRICMC.value)
                     return
+                
+                def quilt() -> None:
+
+                    webbrowser.open_new_tab(constants.QUILT.value)
+                    return
 
                 VersionsAndMods.configure(state= 'disabled')
+                Launch.configure(state= 'normal')
 
                 for name in FrameDecorationCenter.children.items():
 
@@ -464,6 +593,22 @@ if __name__ == '__main__':
                 )
                 SelectQuiltSnapshotVersion.place_configure(relx= 0.7_4, rely= 0.7_5, anchor= 'sw')
 
+                Quilt : customtkinter.CTkButton = customtkinter.CTkButton(
+                    FrameDecorationCenter,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/quilt.png'), size= (26, 26)),
+                    height= 40,
+                    font= ('Roboto', 15),
+                    text_color= 'white',
+                    text= 'Quilt',
+                    command= quilt,
+                    compound= 'left',
+                    hover= False
+                )
+                Quilt.place_configure(relx= 0.7_7, rely= 0.8_8, anchor= 'sw')
+
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
@@ -534,20 +679,23 @@ if __name__ == '__main__':
             )
             VersionsAndMods.place_configure(relx= 0.2_5, rely= 0.1, anchor= 'n')
 
-            Config : customtkinter.CTkButton = customtkinter.CTkButton(
+            Launch : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
                 height= 37,
                 bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 corner_radius= 20,
-                text= 'Configuración',
+                text= 'Lanzar',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/config.png'), size= (22, 22)),
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
-                border_color= '#70ceff'
+                border_color= '#70ceff',
+                command= launch
             )
-            Config.place_configure(relx= 0.5, rely= 0.1, anchor= 'n')
+            Launch.place_configure(relx= 0.5, rely= 0.1, anchor= 'n')
+
+            Launch.configure(state= 'disabled')
 
             Accounts : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
@@ -574,7 +722,7 @@ if __name__ == '__main__':
             )
             FrameDecorationCenter.place_configure(relx= 0.09, rely= 0.9_1, anchor= 'sw', relheight= 0.6_3, relwidth= 0.7_2)
 
-            LabelLaunch : customtkinter.CTkLabel = customtkinter.CTkLabel(
+            LaunchTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
                 text= ' Lanzar',
                 compound= 'left',
@@ -584,7 +732,16 @@ if __name__ == '__main__':
                 fg_color= '#232323',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/launch.png'), size= (96, 96))
             )
-            LabelLaunch.place_configure(relx= 0.0_6, rely= 0.2_7, anchor= 'sw')
+            LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')
+
+            if not os.path.exists(self.PATH + 'versions/') or len(os.listdir(self.PATH + 'versions/')) == 0:
+                self.VERSIONS_LIST.insert(0, 'No hay versiones instaladas.')
+
+            else:
+
+                for name in os.listdir(self.PATH + 'versions/'):
+
+                    self.VERSIONS_LIST.append(name)    
 
             LaunchVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
                 FrameDecorationCenter,
@@ -600,9 +757,69 @@ if __name__ == '__main__':
                 width= 210,
                 fg_color= '#0077ff', 
                 button_color= '#0077ff',
-                values= ['Test']
+                values= self.VERSIONS_LIST
             )
-            LaunchVersion.place_configure(relx= 0.0_7, rely= 0.5_2, anchor= 'sw')
+            LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
+
+            if self.VERSIONS_LIST[0] == 'No hay versiones instaladas.':
+
+                LaunchVersion.configure(state= 'disabled')
+
+            JavaTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                FrameDecorationCenter,
+                text= ' Java',
+                compound= 'left',
+                font= ('Roboto', 30),
+                text_color= '#70ceff',
+                bg_color= '#232323',
+                fg_color= '#232323',
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/java.png'), size= (96, 96))
+            )
+            JavaTitle.place_configure(relx= 0.3_5, rely= 0.2_7, anchor= 'sw')
+
+            if not os.path.exists(self.PATH + 'Java/') or len(os.listdir(self.PATH + 'Java/')) == 0:
+                self.JAVA_LIST.insert(0, 'No hay versiones instaladas en las librerías locales.')
+
+            for java_local in os.listdir(self.PATH + 'Java/'):    
+
+                if os.path.exists(self.PATH + 'Java/' + java_local + '/bin/java.exe'):
+                    self.JAVA_LIST.append(self.PATH + 'Java/' + java_local + '/bin/java.exe')
+
+            for java_system in ['C:/Program Files/' + folder for folder in os.listdir('C:/Program Files/') if folder.find('.') == -1]:
+
+                try:
+
+                    for java in [f'/{jdk}' for jdk in os.listdir(java_system) if jdk.find('jdk') != -1 or jdk.find('java') != -1]:
+
+                        if os.path.exists(java_system + java + '/bin/java.exe'):
+
+                            self.JAVA_LIST.append(java_system + java + '/bin/java.exe')
+
+                except:
+
+                    pass            
+
+            SelectJavaVersion : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                FrameDecorationCenter,
+                height= 40,
+                corner_radius= 20,
+                bg_color= '#232323',
+                font= ('Roboto', 15),
+                dropdown_font= ('Roboto', 15),
+                dynamic_resizing= False,
+                text_color= 'white',
+                dropdown_fg_color= '#232323',
+                dropdown_text_color= 'white',
+                width= 210,
+                fg_color= '#0077ff', 
+                button_color= '#0077ff',
+                values= self.JAVA_LIST
+            )
+            SelectJavaVersion.place_configure(relx= 0.3_6, rely= 0.5_0, anchor= 'sw')
+
+            if len(self.JAVA_LIST) <= 1 and self.JAVA_LIST[0] == 'No hay versiones instaladas en las librerías locales.':
+
+                SelectJavaVersion.configure(state= 'disabled')
 
             OptimizationTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
@@ -615,7 +832,7 @@ if __name__ == '__main__':
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/optimize.png'), size= (96, 96))
 
             )
-            OptimizationTitle.place_configure(relx= 0.9_3, rely= 0.2_7, anchor= 'se')
+            OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
 
             OptimizeJavaArgs : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
                 FrameDecorationCenter,
@@ -647,9 +864,20 @@ if __name__ == '__main__':
                 button_hover_color= 'white',
                 progress_color= '#70ceff',
                 height= 60,
-				width= 100
+				width= 100,
+                command= open_or_close
             ) 
             OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
+
+            with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                        
+                config = json.load(read)
+
+                if config['launcher settings']['close_on_start'] == True:
+                    OpenOrClose.select()
+
+                else:    
+                    OpenOrClose.deselect()  
         
             HomeWindow.mainloop()
             

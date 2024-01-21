@@ -42,4 +42,5 @@ class constants(Enum):
     PAYPAL : str = 'https://paypal.me/DevCheck'
 
     FABRICMC : str = 'https://fabricmc.net/'
+    QUILT : str = 'https://quiltmc.org/'
 
