@@ -31,7 +31,6 @@
 
 - **Agregar soporte para cuentas premium.**
 - **Soporte de Forge**
-- **Instalación automática de mods para Forge y Quilt.**
 - **Soporte de Skins para las cuentas no premium.**
 - **Capas personalizadas para los usuarios no premium.**
   
