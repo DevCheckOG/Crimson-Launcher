@@ -30,7 +30,6 @@ SOFTWARE.
 
 """
 
-from logging import config
 import os
 import json
 import getpass
