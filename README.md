@@ -12,7 +12,7 @@
        
 - **Windows**
 
-> [!NOTE]  
+> [!IMPORTANT]  
 > **Debe contar con Windows 10, Windows 11 y superior a la 21h1.**
             
 ### Requisitos del Código Fuente 📚
