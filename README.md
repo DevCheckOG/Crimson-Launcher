@@ -23,7 +23,6 @@
 
 - **Soporte para cuentas no premium.**
 - **Soporte de Fabric, Optifine, Vanilla y Quilt.**
-- **Instalación automática de mods provenientes de** *Modrinth.*
 - **Carpeta de .minecraft personalizada.**
 - **Soporte para mods de Fabric.**
 - **Instalación automática de diferentes JDK para el correcto funcionamiento de Minecraft.**
