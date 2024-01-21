@@ -873,6 +873,7 @@ if __name__ == '__main__':
                 config = json.load(read)
 
                 if config['launcher settings']['close_on_start'] == True:
+                    self.OPEN_OR_CLOSE = True
                     OpenOrClose.select()
 
                 else:    
