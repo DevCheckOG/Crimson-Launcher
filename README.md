@@ -3,16 +3,17 @@
 # Crimson Launcher
 
 > [!NOTE]  
-> **Este repositorio pertenece a los colaboradores de Crimson Launcher.**
+> **Este repositorio pertenece a los desarrolladores de Crimson Launcher.**
 
 > [!WARNING]
-> **Este proyecto esta en continuo desarrollo, puede haber bugs.**
+> **Este proyecto esta en continuo desarrollo, puede contar con bugs.**
 
 ### Requisitos ⭐
        
 - **Windows**
 
-    - **Contar con Windows 11 o Windows 10 21h2 o superior.**
+> [!IMPORTANT]  
+> **Debe contar con Windows 10, Windows 11 y superior a la 21h1.**
             
 ### Requisitos del Código Fuente 📚
 
@@ -21,17 +22,15 @@
 ### Características 💎
 
 - **Soporte para cuentas no premium.**
-- **Soporte de Fabric, Optifine y Vanilla.**
-- **Instalación automática de mods provenientes de** *Modrinth.*
+- **Soporte de Fabric, Optifine, Vanilla y Quilt.**
 - **Carpeta de .minecraft personalizada.**
 - **Soporte para mods de Fabric.**
-- **Instalación automática de diferentes JDK para el correcto funcionamiento de Minecraft.**
+- **Instalación automática de diferentes versiones del JDK para el correcto funcionamiento de Minecraft.**
 
 ### Metas 💪
 
 - **Agregar soporte para cuentas premium.**
-- **Soporte de Forge y Quilt.**
-- **Instalación automática de mods para Forge y Quilt.**
+- **Soporte de Forge**
 - **Soporte de Skins para las cuentas no premium.**
 - **Capas personalizadas para los usuarios no premium.**
   
