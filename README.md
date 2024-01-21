@@ -25,7 +25,7 @@
 - **Soporte de Fabric, Optifine, Vanilla y Quilt.**
 - **Carpeta de .minecraft personalizada.**
 - **Soporte para mods de Fabric.**
-- **Instalación automática de diferentes JDK para el correcto funcionamiento de Minecraft.**
+- **Instalación automática de diferentes versiones del JDK para el correcto funcionamiento de Minecraft.**
 
 ### Metas 💪
 
