@@ -36,7 +36,7 @@ import getpass
 import platform
 import shutil
 import sys
-from typing import List, Literal
+from typing import List, Literal, Dict
 import webbrowser
 import minecraft_launcher_lib
 import psutil
@@ -80,6 +80,8 @@ if __name__ == '__main__':
             self.JAVA_CURRENT : str = ''
             self.OPEN_OR_CLOSE : bool = False
             self.JAVA_LIST : List[str] = []
+            self.ACCOUNTS_LIST : List[str] = []
+            self.ACCOUNT_CURRENT : Dict[str, str] = {}
 
             self.checker()
 
@@ -165,7 +167,7 @@ if __name__ == '__main__':
 
                     with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
                         config = json.load(read)
-                        self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']      
+                        self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']          
 
                 if not os.path.exists(self.PATH + 'launcher_profiles.json'):
                     with open(self.PATH + 'launcher_profiles.json', 'w') as write:
@@ -184,7 +186,17 @@ if __name__ == '__main__':
 
                     if config['java']['path'] != None:
 
-                        self.JAVA_CURRENT = config['java']['path']        
+                        self.JAVA_CURRENT = config['java']['path']    
+
+                    for account in config['accounts'].items():
+
+                        if account[1]['type'] == 'no_premium':
+
+                            for name in config['accounts'].keys():
+
+                                if name.lower() == account[0].lower():
+
+                                    self.ACCOUNTS_LIST.append(name + ' | No Premium')             
 
                 jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
@@ -354,6 +366,75 @@ if __name__ == '__main__':
                     
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)
                     return
+                
+                def no_premium() -> None:
+
+                    if len(EntryNoPremiumAccount.get()) >= 14:
+
+                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El tamaño del nick no puede ser mayor a 14 carácteres.', type= 'ok', parent= HomeWindow)
+                        return
+                    
+                    elif EntryNoPremiumAccount.get().isspace():
+                        
+                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede contener espacios.', type= 'ok', parent= HomeWindow)
+                        return
+                    
+                    elif EntryNoPremiumAccount.get() == '':
+                        
+                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede estar vacío.', type= 'ok', parent= HomeWindow)
+                        return
+                    
+                    elif EntryNoPremiumAccount.get().lower() == 'Nombre de la nueva cuenta.'.lower():
+
+                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede ser el placeholder por defecto.', type= 'ok', parent= HomeWindow)
+                        return 
+                    
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                        config = json.load(read)
+
+                        for name in config['accounts'].keys():
+
+                            if name.lower() == EntryNoPremiumAccount.get().lower():
+                                
+                                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Cuenta ya existente.', type= 'ok', parent= HomeWindow)
+                                return
+                    
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                        config = json.load(read)
+                        config['accounts'][EntryNoPremiumAccount.get()] = {
+
+                            'nickname' : EntryNoPremiumAccount.get(),
+                            'type' : 'no_premium',
+                            'select' : False
+
+                        }
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                        json.dump(config, write, indent= 5)
+
+                    self.ACCOUNTS_LIST.clear()   
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                        config = json.load(read) 
+
+                        for account in config['accounts'].items():
+
+                            if account[1]['type'] == 'no_premium':
+
+                                for name in config['accounts'].keys():
+
+                                    if name.lower() == account[0].lower():
+
+                                        self.ACCOUNTS_LIST.append(name + ' | No Premium')      
+
+                        SelectAccount.configure(values = self.ACCOUNTS_LIST)   
+
+                    messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Cuenta guardada, ahora puede seleccionarla.', type= 'ok', parent= HomeWindow)
+                    return
 
                 for name in FrameDecorationCenter.children.items():
 
@@ -426,10 +507,11 @@ if __name__ == '__main__':
                     font= ('Roboto', 15),
                     border_width= 2,
                     border_color= '#70ceff',
+                    command= no_premium
                 )
                 CreateNoPremiumAccount.place_configure(relx= 0.1_1, rely= 0.5_5, anchor= 'sw')
 
-                SelectAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                SelectAccountLabel : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
                     text= ' Selecionar',
                     compound= 'left',
@@ -440,7 +522,11 @@ if __name__ == '__main__':
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/select.png'), size= (96, 96))
 
                 )
-                SelectAccount.place_configure(relx= 0.5, rely= 0.1_6, anchor= 'center') 
+                SelectAccountLabel.place_configure(relx= 0.5, rely= 0.1_6, anchor= 'center') 
+
+                if len(self.ACCOUNTS_LIST) <= 0:
+
+                    self.ACCOUNTS_LIST.append('No hay cuentas disponibles.')
 
                 SelectAccount : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
                     FrameDecorationCenter,
@@ -456,9 +542,13 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= ['Proximamente']
+                    values= self.ACCOUNTS_LIST
                 )
                 SelectAccount.place_configure(relx= 0.5_2, rely= 0.3_7, anchor= 'center')
+
+                if len(self.ACCOUNTS_LIST) <= 1 and self.ACCOUNTS_LIST[0] == 'No hay cuentas disponibles.':
+
+                    SelectAccount.configure(state= 'disabled')
 
                 PremiumAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
