@@ -44,6 +44,7 @@ import jdk
 import customtkinter
 import tkinter
 import signal
+import winotify
 from PIL import Image
 from tkinter import messagebox
 from concurrent.futures import ThreadPoolExecutor
@@ -57,6 +58,32 @@ if __name__ == '__main__':
     if not platform.platform().startswith('Windows'):
         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         raise RuntimeError('Sistema operativo incompatible.')
+    
+    class NotifierWindows:
+
+        def __init__(self, path_assets : str, title : str, msg : str) -> None:
+
+            self.PATH_ASSETS : str = path_assets
+            self.title : str = title
+            self.msg : str = msg
+
+            self.notify()
+
+        def notify(self) -> None:
+
+            notification = winotify.Notification(
+
+                app_id= f'Crimson Launcher - {constants.VERSION.value}',
+                title= self.title,
+                msg= self.msg,
+                icon= f'{self.PATH_ASSETS}/logo.png'
+
+            )
+
+            notification.set_audio(winotify.audio.Default, loop= False)
+            notification.show()
+
+            return
 
     class CrimsonLauncher:
 
@@ -367,16 +394,87 @@ if __name__ == '__main__':
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)
                     return
                 
+                def select_account(account : str) -> None:
+
+                    if account.find(' | No Premium') != -1:
+
+                        ACCOUNT = account.replace(' | No Premium', '')
+
+                        with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                            config = json.load(read)
+                        
+                            for key in config['accounts'].keys():
+
+                                if config['accounts'][key]['select']:
+
+                                    config['accounts'][key]['select'] = False
+
+                            for key in config['accounts'].keys():
+
+                                if config['accounts'][key]['nickname'].lower() == ACCOUNT.lower():
+
+                                    config['accounts'][key]['select'] = True 
+                                    self.ACCOUNT_CURRENT = config['accounts'][key]['nickname']
+                                    break        
+
+                        with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                            json.dump(config, write, indent= 5)
+
+                        messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Cuenta seleccionada: {self.ACCOUNT_CURRENT}', type= 'ok', parent= HomeWindow)    
+                        return
+
+                    #Proximamente la lógica para las cuentas premium.  
+
+                def delete_account(account : str) -> None:
+
+                    if account.find(' | No Premium') != -1:
+
+                        ACCOUNT = account.replace(' | No Premium', '')
+
+                        with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                            config = json.load(read)
+
+                            for key in config['accounts'].keys():
+
+                                if config['accounts'][key]['nickname'].lower() == ACCOUNT.lower():
+
+                                    if config['accounts'][key]['select']:
+
+                                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No puedes borrar la cuenta seleccionada.', type= 'ok', parent= HomeWindow)
+                                        return
+
+                                    del config['accounts'][key]
+                                    break
+
+                        with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                            json.dump(config, write, indent= 5)
+
+                        for value in self.ACCOUNTS_LIST:
+
+                            if value.find(' | No Premium') != -1 and value.replace(' | No Premium', '') == ACCOUNT:
+                                
+                                self.ACCOUNTS_LIST.remove(value)
+                                break
+                        
+                        SelectAccount.configure(values= self.ACCOUNTS_LIST)
+                        DeleteAccount.configure(values= self.ACCOUNTS_LIST)
+
+                        DeleteAccount.set(self.ACCOUNTS_LIST[0])
+
+                        messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Cuenta eliminada: {ACCOUNT}', type= 'ok', parent= HomeWindow)
+                        return    
+
                 def no_premium() -> None:
+
+                    tempList : list[str] = EntryNoPremiumAccount.get().split(' ')
 
                     if len(EntryNoPremiumAccount.get()) >= 14:
 
                         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El tamaño del nick no puede ser mayor a 14 carácteres.', type= 'ok', parent= HomeWindow)
-                        return
-                    
-                    elif EntryNoPremiumAccount.get().isspace():
-                        
-                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede contener espacios.', type= 'ok', parent= HomeWindow)
                         return
                     
                     elif EntryNoPremiumAccount.get() == '':
@@ -389,6 +487,11 @@ if __name__ == '__main__':
                         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede ser el placeholder por defecto.', type= 'ok', parent= HomeWindow)
                         return 
                     
+                    elif len(tempList) >= 2:
+
+                        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El nick no puede contener espacios.', type= 'ok', parent= HomeWindow)
+                        return
+                        
                     with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
 
                         config = json.load(read)
@@ -432,6 +535,7 @@ if __name__ == '__main__':
                                         self.ACCOUNTS_LIST.append(name + ' | No Premium')      
 
                         SelectAccount.configure(values = self.ACCOUNTS_LIST)   
+                        DeleteAccount.configure(values = self.ACCOUNTS_LIST)
 
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Cuenta guardada, ahora puede seleccionarla.', type= 'ok', parent= HomeWindow)
                     return
@@ -542,13 +646,50 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.ACCOUNTS_LIST
+                    values= self.ACCOUNTS_LIST,
+                    command= select_account
                 )
                 SelectAccount.place_configure(relx= 0.5_2, rely= 0.3_7, anchor= 'center')
 
                 if len(self.ACCOUNTS_LIST) <= 1 and self.ACCOUNTS_LIST[0] == 'No hay cuentas disponibles.':
 
                     SelectAccount.configure(state= 'disabled')
+
+                DeleteAccountLabel : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= ' Eliminar Cuenta',
+                    compound= 'left',
+                    font= ('Roboto', 30),
+                    text_color= '#70ceff',
+                    bg_color= '#232323',
+                    fg_color= '#232323',
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/garbage.png'), size= (96, 96))
+
+                )  
+                DeleteAccountLabel.place_configure(relx= 0.5, rely= 0.5_7, anchor= 'center')
+
+                DeleteAccount : customtkinter.CTkOptionMenu = customtkinter.CTkOptionMenu(
+                    FrameDecorationCenter,
+                    height= 40,
+                    corner_radius= 20,
+                    bg_color= '#232323',
+                    font= ('Roboto', 15),
+                    dropdown_font= ('Roboto', 15),
+                    dynamic_resizing= False,
+                    text_color= 'white',
+                    dropdown_fg_color= '#232323',
+                    dropdown_text_color= 'white',
+                    width= 210,
+                    fg_color= '#0077ff', 
+                    button_color= '#0077ff',
+                    values= self.ACCOUNTS_LIST,
+                    command= delete_account
+                )
+                DeleteAccount.place_configure(relx= 0.5_2, rely= 0.7_7, anchor= 'center')
+
+                if len(self.ACCOUNTS_LIST) <= 1 and self.ACCOUNTS_LIST[0] == 'No hay cuentas disponibles.':
+
+                    DeleteAccount.configure(state= 'disabled')
 
                 PremiumAccount : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
@@ -1250,6 +1391,8 @@ if __name__ == '__main__':
 
                 else:    
                     OpenOrClose.deselect()  
+
+            NotifierWindows(self.PATH_ASSETS, 'Crimson Launcher | Notificación', 'El launcher se ha iniciado correctamente.')        
         
             HomeWindow.mainloop()
             
