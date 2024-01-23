@@ -45,6 +45,8 @@ import customtkinter
 import tkinter
 import signal
 import winotify
+import coloredlogs
+import logging
 from PIL import Image
 from tkinter import messagebox
 from concurrent.futures import ThreadPoolExecutor
@@ -54,11 +56,38 @@ from constants import constants
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+    LOGGER = logging.getLogger(__name__)
 
     if not platform.platform().startswith('Windows'):
         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         raise RuntimeError('Sistema operativo incompatible.')
     
+    class Logging:
+
+        def __init__(self) -> None:
+
+            coloredlogs.install(level='DEBUG', logger= LOGGER, milliseconds=True)
+
+        def debug(self, msg : str) -> None:
+
+            LOGGER.debug(msg)    
+
+        def info(self, msg : str) -> None:
+
+            LOGGER.info(msg)   
+
+        def warning(self, msg : str) -> None:
+
+            LOGGER.warning(msg)
+
+        def error(self, msg : str) -> None:
+
+            LOGGER.error(msg)
+
+        def critical(self, msg : str) -> None:
+
+            LOGGER.critical(msg)              
+
     class NotifierWindows:
 
         def __init__(self, path_assets : str, title : str, msg : str) -> None:
@@ -80,14 +109,21 @@ if __name__ == '__main__':
 
             )
 
+            Logging().debug(f'Sending notification...')
+
             notification.set_audio(winotify.audio.Default, loop= False)
             notification.show()
+
+            Logging().debug(f'Notification send.')
 
             return
 
     class CrimsonLauncher:
 
         def __init__(self, user : str) -> None:
+
+            Logging().debug(f'User: {user}')
+            Logging().debug(f'Starting the Crimson Launcher...')
 
             self.BASE_PATH : str = f'C:/Users/{user}/AppData/Roaming/'
             self.PATH : str = f'C:/Users/{user}/AppData/Roaming/.crimson/'
@@ -97,18 +133,22 @@ if __name__ == '__main__':
             self.RAM_ASSIGNED : int = 500
             self.PATH_ASSETS : str = os.getcwd().replace('\\', '/') + '/assets'
             self.COLOR : str = '#333333'
-            self.MINECRAFT_VANILLA_RELEASES : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'release']
-            self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'snapshot']
-            self.FABRIC_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == True]
-            self.FABRIC_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == False]
-            self.QUILT_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == True]
-            self.QUILT_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == False]
+            self.MINECRAFT_VANILLA_RELEASES : List[str] = []
+            self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = []
+            self.FABRIC_RELEASES : List[str] = []
+            self.FABRIC_SNAPSHOTS : List[str] = []
+            self.QUILT_RELEASES : List[str] = []
+            self.QUILT_SNAPSHOTS : List[str] = []
             self.VERSIONS_LIST : List[str] = []
             self.JAVA_CURRENT : str = ''
             self.OPEN_OR_CLOSE : bool = False
             self.JAVA_LIST : List[str] = []
             self.ACCOUNTS_LIST : List[str] = []
             self.ACCOUNT_CURRENT : Dict[str, str] = {}
+
+            Logging().debug(f'All variables initialized.')
+
+            Logging().debug(f'Starting the checker...')
 
             self.checker()
 
@@ -117,10 +157,12 @@ if __name__ == '__main__':
             try:
                 jdk.install(version= version, operating_system= jdk.OperatingSystem.WINDOWS, path= self.PATH + 'Java/', arch= jdk.Architecture.X64)
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Java {version} instalado correctamente.', type = 'ok')
+                Logging().info(f'Java {version} installed, removing of the queue.')
 
             except:    
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No se logró instalar Java {version} correctamente.')
-                raise RuntimeError(f'No se instaló correctamente Java {version}')    
+                Logging().error(f'Fatal error while installing Java {version}.')
+                self.terminate()  
 
         def checker(self) -> None:
 
@@ -129,12 +171,16 @@ if __name__ == '__main__':
             if internet == False:
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No hay conexión a internet.', type= 'ok')
                 self.CRIMSON_BACKGROUND.shutdown()
-                raise RuntimeError('No hay conexión a internet.')
+                Logging().error(f'Not connected to the internet.')
+                Logging().debug('Checker terminated.')
+                self.terminate()
 
             elif not os.path.exists(self.BASE_PATH):
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la ruta principal de programas {self.BASE_PATH}.', type= 'ok')
                 self.CRIMSON_BACKGROUND.shutdown(cancel_futures= True)
-                raise RuntimeError(f'No existe la ruta principal {self.BASE_PATH}')
+                Logging().error(f'The path {self.BASE_PATH} does not exist.')
+                Logging().debug('Checker terminated.')
+                self.terminate()
             
             elif not os.path.exists(self.PATH):
                 os.mkdir(self.BASE_PATH + '.crimson')
@@ -169,84 +215,100 @@ if __name__ == '__main__':
                             'version': 3
                         }, write, indent= 5)
 
-                self.CRIMSON_BACKGROUND.submit(self.java, '17')
-                self.start()
-
-            else:
-
-                if not os.path.exists(self.PATH + 'Java/'):
-                    messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta principal de Java {self.PATH}.', type= 'ok')
-                    self.CRIMSON_BACKGROUND.shutdown()
-                    raise RuntimeError(f'No existe la carpeta principal de Java {self.PATH}.')
-                
-                if not os.path.exists(self.PATH + 'Crimson Settings/config.json'):
-                    with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
-                        json.dump({
-                            'accounts' : {},
-                            'java' : {
-                                'path' : None,
-                            },
-                            'launcher settings' : {
-                                'close_on_start' : False,
-                                'ram_asigned' : 1000
-                            }
-                        }, write, indent= 5)
-
-                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
-                        config = json.load(read)
-                        self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']          
-
-                if not os.path.exists(self.PATH + 'launcher_profiles.json'):
-                    with open(self.PATH + 'launcher_profiles.json', 'w') as write:
-                        json.dump({
-                            'profiles' : {},                  
-                            'settings': {
-                                'enableAdvanced': False,
-                                'profileSorting': 'byName'
-                            },
-                            'version': 3
-                        }, write, indent= 5)
+            if not os.path.exists(self.PATH + 'Java/'):
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta principal de Java {self.PATH}.', type= 'ok')
+                self.CRIMSON_BACKGROUND.shutdown()
+                Logging().error(f'The path {self.PATH} does not exist.')
+                Logging().debug('Checker terminated.')
+                self.terminate()
+            
+            if not os.path.exists(self.PATH + 'Crimson Settings/config.json'):
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+                    json.dump({
+                        'accounts' : {},
+                        'java' : {
+                            'path' : None,
+                        },
+                        'launcher settings' : {
+                            'close_on_start' : False,
+                            'ram_asigned' : 1000
+                        }
+                    }, write, indent= 5)
 
                 with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
                     config = json.load(read)
-                    self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']    
+                    self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']          
 
-                    if config['java']['path'] != None:
+            if not os.path.exists(self.PATH + 'launcher_profiles.json'):
+                with open(self.PATH + 'launcher_profiles.json', 'w') as write:
+                    json.dump({
+                        'profiles' : {},                  
+                        'settings': {
+                            'enableAdvanced': False,
+                            'profileSorting': 'byName'
+                        },
+                        'version': 3
+                    }, write, indent= 5)
 
-                        self.JAVA_CURRENT = config['java']['path']    
+            with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                config = json.load(read)
+                self.RAM_ASSIGNED = config['launcher settings']['ram_asigned']    
 
-                    for account in config['accounts'].items():
+                if config['java']['path'] != None:
 
-                        if account[1]['type'] == 'no_premium':
+                    self.JAVA_CURRENT = config['java']['path']    
 
-                            for name in config['accounts'].keys():
+                for account in config['accounts'].items():
 
-                                if name.lower() == account[0].lower():
+                    if account[1]['type'] == 'no_premium':
 
-                                    self.ACCOUNTS_LIST.append(name + ' | No Premium')             
+                        for name in config['accounts'].keys():
 
-                jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
+                            if name.lower() == account[0].lower():
 
-                if len(jdks) == 0:
-                    self.CRIMSON_BACKGROUND.submit(self.java, '17')
+                                self.ACCOUNTS_LIST.append(name + ' | No Premium')             
 
-                else:
+            jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
-                    for java in jdks:
+            if len(jdks) == 0:
+                self.CRIMSON_BACKGROUND.submit(self.java, '17')
+                Logging().info('Java 17 not found. Installing... (JDK in Queue)')
 
-                        if not os.path.exists(self.PATH + f'Java/{java}/bin/java.exe'):
-                            
-                            if java.startswith('jdk-17'):  
-                                shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
-                                self.CRIMSON_BACKGROUND.submit(self.java, '17')
-                                break
+            else:
 
-                            elif java.startswith('jdk-8'):    
-                                shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
-                                self.CRIMSON_BACKGROUND.submit(self.java, '8')
-                                break
+                for java in jdks:
 
-                self.start()
+                    if not os.path.exists(self.PATH + f'Java/{java}/bin/java.exe'):
+                        
+                        if java.startswith('jdk-17'):  
+                            shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
+                            self.CRIMSON_BACKGROUND.submit(self.java, '17')
+                            Logging().info('Java 17 not found. Installing... (JDK in Queue)')
+                            break
+
+                        elif java.startswith('jdk-8'):    
+                            shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
+                            self.CRIMSON_BACKGROUND.submit(self.java, '8')
+                            Logging().info('Java 8 not found. Installing... (JDK in Queue)')
+                            break
+
+            self.MINECRAFT_VANILLA_RELEASES : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'release']
+            self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'snapshot']
+            self.FABRIC_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == True]
+            self.FABRIC_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == False]
+            self.QUILT_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == True]
+            self.QUILT_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == False]
+
+            Logging().debug('Vanilla releases: ' + ', '.join(self.MINECRAFT_VANILLA_RELEASES))
+            Logging().debug('Vanilla snapshots: ' + ', '.join(self.MINECRAFT_VANILLA_SNAPSHOTS))
+            Logging().debug('Fabric releases: ' + ', '.join(self.FABRIC_RELEASES))
+            Logging().debug('Fabric snapshots: ' + ', '.join(self.FABRIC_SNAPSHOTS))
+            Logging().debug('Quilt releases: ' + ', '.join(self.QUILT_RELEASES))
+            Logging().debug('Quilt snapshots: ' + ', '.join(self.QUILT_SNAPSHOTS))
+
+            Logging().debug('Checker terminated.')
+
+            self.start()
 
         def start(self) -> None:
 
@@ -257,6 +319,8 @@ if __name__ == '__main__':
                 StartWindow.withdraw()
 
                 return self.main()
+            
+            Logging().debug('Starting the start window...')
 
             StartWindow : customtkinter.CTk = customtkinter.CTk()   
             StartWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
@@ -293,7 +357,11 @@ if __name__ == '__main__':
             StartWindow.after(300, terminate_start_window)
             StartWindow.mainloop()
 
+            Logging().debug('Start window terminated.')
+
         def main(self) -> None:
+
+            Logging().debug('Starting the main window...')
 
             def terminate_home_window() -> None:
                 
@@ -1395,10 +1463,15 @@ if __name__ == '__main__':
             NotifierWindows(self.PATH_ASSETS, 'Crimson Launcher | Notificación', 'El launcher se ha iniciado correctamente.')        
         
             HomeWindow.mainloop()
+
+            Logging().debug('Main Window terminated.')
             
         def terminate(self) -> None:
 
+            Logging().debug('Terminating...')
+            Logging().warning('If there is a JDK in the installation queue, it cannot be closed quickly.')
             self.CRIMSON_BACKGROUND.shutdown()
+            Logging().debug('Terminated.')
             sys.exit(0)
 
     def get_user() -> str:
@@ -1418,6 +1491,8 @@ if __name__ == '__main__':
 
         return USER
     
+    Logging().debug('Starting the Crimson Launcher...')
+
     CrimsonLauncher(get_user())
     
     sys.exit(0)

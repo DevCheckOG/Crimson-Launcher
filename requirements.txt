@@ -1,0 +1,7 @@
+shutil
+install-jdk
+minecraft-launcher-lib
+customtkinter
+winotify
+pillow
+coloredlogs
