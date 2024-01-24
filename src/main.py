@@ -133,6 +133,7 @@ if __name__ == '__main__':
             self.RAM_TOTAL : int  = round(0.65 * psutil.virtual_memory().total / (1024 ** 2))
             self.RAM_ASSIGNED : int = 500
             self.ASSETS_PATH : str = os.getcwd().replace('\\', '/') + '/assets'
+            self.FONTS_PATH : str = os.getcwd().replace('\\', '/') + '/fonts'
             self.COLOR : str = '#333333'
             self.MINECRAFT_VANILLA_RELEASES : List[str] = []
             self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = []
@@ -148,6 +149,20 @@ if __name__ == '__main__':
             self.ACCOUNT_CURRENT : Dict[str, str] = {}
 
             Logging().debug(f'All variables initialized.')
+
+            Logging().debug(f'Loading fonts...')
+
+            try:
+
+                customtkinter.FontManager.load_font(f'{self.FONTS_PATH}/JetBrains.ttf') 
+
+            except Exception as e:
+                
+                Logging().error(f'Fatal error while loading fonts: {e}')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No se logro cargar las fuentes, se recomienda revisar la consola.', type= 'ok')
+                self.terminate()    
+
+            Logging().debug(f'Fonts loaded.')
 
             Logging().debug(f'Starting the checker...')
 
@@ -315,9 +330,13 @@ if __name__ == '__main__':
 
             def terminate_start_window() -> None:
 
+                Logging().debug('Terminating start window...')
+
                 StartWindowLoadBar.stop()
                 StartWindow.quit()
                 StartWindow.withdraw()
+
+                Logging().debug('Start window terminated.')
 
                 return self.main()
             
@@ -329,7 +348,7 @@ if __name__ == '__main__':
             StartWindow.resizable(False, False)
             StartWindow.geometry('580x620')
             StartWindow.wm_iconbitmap(f'{self.ASSETS_PATH}/logo.ico')
-            StartWindow.wm_protocol('WM_DELETE_WINDOW', terminate_start_window)
+            StartWindow.overrideredirect(True)
 
             StartWindowImage : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 StartWindow,
@@ -338,7 +357,17 @@ if __name__ == '__main__':
                 bg_color= 'transparent',
                 fg_color= self.COLOR 
             )
-            StartWindowImage.pack_configure(anchor= 'center', pady= 100)
+            StartWindowImage.pack_configure(anchor= 'n', pady= 100)
+
+            StartWindowTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                StartWindow,
+                text= 'Crimson Launcher',
+                text_color= '#0077ff',
+                font= ('JetBrains', 30),
+                bg_color= 'transparent',
+                fg_color= self.COLOR
+            )
+            StartWindowTitle.place_configure(relx= 0.5, rely= 0.6_5, anchor= 'center')
             
             StartWindowLoadBar : customtkinter.CTkProgressBar = customtkinter.CTkProgressBar(
                 StartWindow,
@@ -645,7 +674,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' No Premium',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -659,7 +688,7 @@ if __name__ == '__main__':
                     placeholder_text= 'Nombre de la nueva cuenta.',
                     placeholder_text_color= 'white',
                     text_color= 'white',
-                    font=('Roboto', 15),
+                    font=('JetBrains', 15),
                     width= 210,
                     height= 35,
                     corner_radius= 20,
@@ -677,7 +706,7 @@ if __name__ == '__main__':
                     text= 'Crear cuenta',
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/create.png'), size= (22, 22)),
                     compound= 'left',
-                    font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
                     border_width= 2,
                     border_color= '#70ceff',
                     command= no_premium
@@ -688,7 +717,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Selecionar',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -706,8 +735,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -728,7 +757,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Eliminar Cuenta',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -742,8 +771,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -764,7 +793,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Premium',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -778,7 +807,7 @@ if __name__ == '__main__':
                     placeholder_text= 'Correo de la cuenta.',
                     placeholder_text_color= 'white',
                     text_color= 'white',
-                    font=('Roboto', 15),
+                    font=('JetBrains', 15),
                     width= 210,
                     height= 35,
                     corner_radius= 20,
@@ -792,7 +821,7 @@ if __name__ == '__main__':
                     placeholder_text= 'Contraseña de la cuenta.',
                     placeholder_text_color= 'white',
                     text_color= 'white',
-                    font=('Roboto', 15),
+                    font=('JetBrains', 15),
                     width= 210,
                     height= 35,
                     corner_radius= 20,
@@ -810,7 +839,7 @@ if __name__ == '__main__':
                     text= 'Iniciar Sesión',
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/create.png'), size= (22, 22)),
                     compound= 'left',
-                    font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
                     border_width= 2,
                     border_color= '#70ceff',
                     command= premium
@@ -974,7 +1003,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Vanilla',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -988,8 +1017,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1006,8 +1035,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1023,7 +1052,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Fabric',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -1037,8 +1066,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1055,8 +1084,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1075,7 +1104,7 @@ if __name__ == '__main__':
                     fg_color= '#232323',
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/fabric.png'), size= (26, 26)),
                     height= 40,
-                    font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
                     text_color= 'white',
                     text= 'FabricMC',
                     command= fabricmc,
@@ -1088,7 +1117,7 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     text= ' Quilt',
                     compound= 'left',
-                    font= ('Roboto', 30),
+                    font= ('JetBrains', 30),
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
@@ -1102,8 +1131,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1120,8 +1149,8 @@ if __name__ == '__main__':
                     height= 40,
                     corner_radius= 20,
                     bg_color= '#232323',
-                    font= ('Roboto', 15),
-                    dropdown_font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
+                    dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
                     dropdown_fg_color= '#232323',
@@ -1140,7 +1169,7 @@ if __name__ == '__main__':
                     fg_color= '#232323',
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/quilt.png'), size= (26, 26)),
                     height= 40,
-                    font= ('Roboto', 15),
+                    font= ('JetBrains', 15),
                     text_color= 'white',
                     text= 'Quilt',
                     command= quilt,
@@ -1175,6 +1204,7 @@ if __name__ == '__main__':
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/discord.png'), size= (96, 96)),
                 height= 35,
                 text= None,
+                hover= False,
                 command= discord
             )
             Discord.place_configure(relx= 0.99, rely= 0.0_8, anchor= 'ne')
@@ -1187,6 +1217,7 @@ if __name__ == '__main__':
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/github.png'), size= (96, 96)),
                 height= 35,
                 text= None,
+                hover= False,
                 command= github
             )
             Github.place_configure(relx= 0.99, rely= 0.4_8, anchor= 'e')
@@ -1199,38 +1230,37 @@ if __name__ == '__main__':
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/donate.png'), size= (96, 96)),
                 height= 35,
                 text= None,
+                hover= False,
                 command= paypal
             )
             Donate.place_configure(relx= 0.99, rely= 0.8_8, anchor= 'se')
 
             VersionsAndMods : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
-                height= 37,
+                height= 40,
                 bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Versiones y Mods',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/download.png'), size= (22, 22)),
                 compound= 'left',
-                font= ('Roboto', 15),
+                font= ('JetBrains', 15),
                 border_width= 2,
-                border_color= '#70ceff',
+                border_color= '#0077ff',
                 command= versions_and_mods
             )
             VersionsAndMods.place_configure(relx= 0.2_5, rely= 0.1, anchor= 'n')
 
             Launch : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
-                height= 37,
+                height= 40,
                 bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Lanzar',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/config.png'), size= (22, 22)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/home.png'), size= (22, 22)),
                 compound= 'left',
-                font= ('Roboto', 15),
-                border_width= 2,
-                border_color= '#70ceff',
+                font= ('JetBrains', 15),
                 command= launch
             )
             Launch.place_configure(relx= 0.5, rely= 0.1, anchor= 'n')
@@ -1239,16 +1269,14 @@ if __name__ == '__main__':
 
             Accounts : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
-                height= 37,
+                height= 40,
                 bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Cuentas',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/account.png'), size= (22, 22)),
                 compound= 'left',
-                font= ('Roboto', 15),
-                border_width= 2,
-                border_color= '#70ceff',
+                font= ('JetBrains', 15),
                 command= accounts
             )
             Accounts.place_configure(relx= 0.7_5, rely= 0.1, anchor= 'n')
@@ -1267,7 +1295,7 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 text= ' Lanzar',
                 compound= 'left',
-                font= ('Roboto', 30),
+                font= ('JetBrains', 30),
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
@@ -1289,8 +1317,8 @@ if __name__ == '__main__':
                 height= 40,
                 corner_radius= 20,
                 bg_color= '#232323',
-                font= ('Roboto', 15),
-                dropdown_font= ('Roboto', 15),
+                font= ('JetBrains', 15),
+                dropdown_font= ('JetBrains', 15),
                 dynamic_resizing= False,
                 text_color= 'white',
                 dropdown_fg_color= '#232323',
@@ -1310,7 +1338,7 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 text= ' Java',
                 compound= 'left',
-                font= ('Roboto', 30),
+                font= ('JetBrains', 30),
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
@@ -1345,8 +1373,8 @@ if __name__ == '__main__':
                 height= 40,
                 corner_radius= 20,
                 bg_color= '#232323',
-                font= ('Roboto', 15),
-                dropdown_font= ('Roboto', 15),
+                font= ('JetBrains', 15),
+                dropdown_font= ('JetBrains', 15),
                 dynamic_resizing= False,
                 text_color= 'white',
                 dropdown_fg_color= '#232323',
@@ -1385,7 +1413,7 @@ if __name__ == '__main__':
             AssignedMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
                 text= f'Memoria asignada: {self.RAM_ASSIGNED} MB',
-                font= ('Roboto', 15),
+                font= ('JetBrains', 15),
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323'
@@ -1395,7 +1423,7 @@ if __name__ == '__main__':
             TotalMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
                 text= f'Memoria disponible: {round(1 * psutil.virtual_memory().total / (1024 ** 2))} MB',
-                font= ('Roboto', 15),
+                font= ('JetBrains', 15),
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323'
@@ -1406,7 +1434,7 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 text= ' Optimización',
                 compound= 'left',
-                font= ('Roboto', 30),
+                font= ('JetBrains', 30),
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
@@ -1421,7 +1449,7 @@ if __name__ == '__main__':
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#0077ff',
-                font= ('Roboto', 18),
+                font= ('JetBrains', 18),
                 onvalue= True,
                 offvalue= False,
                 button_color= 'white',
@@ -1438,7 +1466,7 @@ if __name__ == '__main__':
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#0077ff',
-                font= ('Roboto', 18),
+                font= ('JetBrains', 18),
                 onvalue= True,
                 offvalue= False,
                 button_color= 'white',
@@ -1459,9 +1487,7 @@ if __name__ == '__main__':
                     OpenOrClose.select()
 
                 else:    
-                    OpenOrClose.deselect()  
-
-            NotifierWindows(self.ASSETS_PATH, 'Crimson Launcher | Notificación', 'El launcher se ha iniciado correctamente.')        
+                    OpenOrClose.deselect()    
         
             HomeWindow.mainloop()
 
