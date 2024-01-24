@@ -57,16 +57,12 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     LOGGER = logging.getLogger(__name__)
-
-    if not platform.platform().startswith('Windows'):
-        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
-        raise RuntimeError('Sistema operativo incompatible.')
     
     class Logging:
 
         def __init__(self) -> None:
 
-            coloredlogs.install(level='DEBUG', logger= LOGGER, milliseconds=True)
+            coloredlogs.install(level='DEBUG', logger= LOGGER, milliseconds= True)
 
         def debug(self, msg : str) -> None:
 
@@ -86,15 +82,20 @@ if __name__ == '__main__':
 
         def critical(self, msg : str) -> None:
 
-            LOGGER.critical(msg)              
+            LOGGER.critical(msg)   
+
+    if not platform.platform().startswith('Windows'):
+        Logging().critical(f'System not compatible.')
+        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
+        sys.exit(0)                   
 
     class NotifierWindows:
 
-        def __init__(self, path_assets : str, title : str, msg : str) -> None:
+        def __init__(self, ASSETS_PATH : str, TITLE : str, MSG : str) -> None:
 
-            self.PATH_ASSETS : str = path_assets
-            self.title : str = title
-            self.msg : str = msg
+            self.assets_path : str = ASSETS_PATH
+            self.title : str = TITLE
+            self.msg : str = MSG
 
             self.notify()
 
@@ -105,7 +106,7 @@ if __name__ == '__main__':
                 app_id= f'Crimson Launcher - {constants.VERSION.value}',
                 title= self.title,
                 msg= self.msg,
-                icon= f'{self.PATH_ASSETS}/logo.png'
+                icon= f'{self.assets_path}/logo.png'
 
             )
 
@@ -127,11 +128,11 @@ if __name__ == '__main__':
 
             self.BASE_PATH : str = f'C:/Users/{user}/AppData/Roaming/'
             self.PATH : str = f'C:/Users/{user}/AppData/Roaming/.crimson/'
-            self.CRIMSON_BACKGROUND : ThreadPoolExecutor = ThreadPoolExecutor(max_workers= 10, thread_name_prefix= 'Crimson Background Process')
+            self.CRIMSON_BACKGROUND_THREAD_POOL : ThreadPoolExecutor = ThreadPoolExecutor(max_workers= 10, thread_name_prefix= 'Crimson Background Process')
             self.USER : str = user
             self.RAM_TOTAL : int  = round(0.65 * psutil.virtual_memory().total / (1024 ** 2))
             self.RAM_ASSIGNED : int = 500
-            self.PATH_ASSETS : str = os.getcwd().replace('\\', '/') + '/assets'
+            self.ASSETS_PATH : str = os.getcwd().replace('\\', '/') + '/assets'
             self.COLOR : str = '#333333'
             self.MINECRAFT_VANILLA_RELEASES : List[str] = []
             self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = []
@@ -170,14 +171,14 @@ if __name__ == '__main__':
 
             if internet == False:
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No hay conexión a internet.', type= 'ok')
-                self.CRIMSON_BACKGROUND.shutdown()
+                self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown()
                 Logging().error(f'Not connected to the internet.')
                 Logging().debug('Checker terminated.')
                 self.terminate()
 
             elif not os.path.exists(self.BASE_PATH):
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la ruta principal de programas {self.BASE_PATH}.', type= 'ok')
-                self.CRIMSON_BACKGROUND.shutdown(cancel_futures= True)
+                self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown(cancel_futures= True)
                 Logging().error(f'The path {self.BASE_PATH} does not exist.')
                 Logging().debug('Checker terminated.')
                 self.terminate()
@@ -217,7 +218,7 @@ if __name__ == '__main__':
 
             if not os.path.exists(self.PATH + 'Java/'):
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta principal de Java {self.PATH}.', type= 'ok')
-                self.CRIMSON_BACKGROUND.shutdown()
+                self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown()
                 Logging().error(f'The path {self.PATH} does not exist.')
                 Logging().debug('Checker terminated.')
                 self.terminate()
@@ -271,7 +272,7 @@ if __name__ == '__main__':
             jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
             if len(jdks) == 0:
-                self.CRIMSON_BACKGROUND.submit(self.java, '17')
+                self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.java, '17')
                 Logging().info('Java 17 not found. Installing... (JDK in Queue)')
 
             else:
@@ -282,13 +283,13 @@ if __name__ == '__main__':
                         
                         if java.startswith('jdk-17'):  
                             shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
-                            self.CRIMSON_BACKGROUND.submit(self.java, '17')
+                            self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.java, '17')
                             Logging().info('Java 17 not found. Installing... (JDK in Queue)')
                             break
 
                         elif java.startswith('jdk-8'):    
                             shutil.rmtree(path= self.PATH + f'Java/{java}',ignore_errors= True)
-                            self.CRIMSON_BACKGROUND.submit(self.java, '8')
+                            self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.java, '8')
                             Logging().info('Java 8 not found. Installing... (JDK in Queue)')
                             break
 
@@ -327,13 +328,13 @@ if __name__ == '__main__':
             StartWindow.config(bg= self.COLOR)
             StartWindow.resizable(False, False)
             StartWindow.geometry('580x620')
-            StartWindow.wm_iconbitmap(f'{self.PATH_ASSETS}/logo.ico')
+            StartWindow.wm_iconbitmap(f'{self.ASSETS_PATH}/logo.ico')
             StartWindow.wm_protocol('WM_DELETE_WINDOW', terminate_start_window)
 
             StartWindowImage : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 StartWindow,
                 text= None,
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/logo.png'), size= (256, 256)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/logo.png'), size= (256, 256)),
                 bg_color= 'transparent',
                 fg_color= self.COLOR 
             )
@@ -493,7 +494,7 @@ if __name__ == '__main__':
                         messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Cuenta seleccionada: {self.ACCOUNT_CURRENT}', type= 'ok', parent= HomeWindow)    
                         return
 
-                    #Proximamente la lógica para las cuentas premium.  
+                    #Lógica para las cuentas premium...  
 
                 def delete_account(account : str) -> None:
 
@@ -648,7 +649,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/no_premium.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/no_premium.png'), size= (96, 96))
 
                 )
                 NoPremiumAccount.place_configure(relx= 0.0_3, rely= 0.2_7, anchor= 'sw')    
@@ -674,7 +675,7 @@ if __name__ == '__main__':
                     fg_color= '#0077ff',
                     corner_radius= 20,
                     text= 'Crear cuenta',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/create.png'), size= (22, 22)),
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/create.png'), size= (22, 22)),
                     compound= 'left',
                     font= ('Roboto', 15),
                     border_width= 2,
@@ -691,7 +692,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/select.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/select.png'), size= (96, 96))
 
                 )
                 SelectAccountLabel.place_configure(relx= 0.5, rely= 0.1_6, anchor= 'center') 
@@ -731,7 +732,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/garbage.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/garbage.png'), size= (96, 96))
 
                 )  
                 DeleteAccountLabel.place_configure(relx= 0.5, rely= 0.5_7, anchor= 'center')
@@ -767,7 +768,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/premium.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/premium.png'), size= (96, 96))
 
                 )
                 PremiumAccount.place_configure(relx= 0.9_5, rely= 0.0_7, anchor= 'ne')
@@ -807,7 +808,7 @@ if __name__ == '__main__':
                     fg_color= '#0077ff',
                     corner_radius= 20,
                     text= 'Iniciar Sesión',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/create.png'), size= (22, 22)),
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/create.png'), size= (22, 22)),
                     compound= 'left',
                     font= ('Roboto', 15),
                     border_width= 2,
@@ -977,7 +978,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/vanilla.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/vanilla.png'), size= (96, 96))
 
                 )
                 InstallVanillaVersion.place_configure(relx= 0.0_6, rely= 0.2_7, anchor= 'sw')  
@@ -1026,7 +1027,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/fabric.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/fabric.png'), size= (96, 96))
 
                 )
                 InstallFabricVersion.place_configure(relx= 0.3_9, rely= 0.2_7, anchor= 'sw')
@@ -1072,7 +1073,7 @@ if __name__ == '__main__':
                     corner_radius= 20,
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/fabric.png'), size= (26, 26)),
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/fabric.png'), size= (26, 26)),
                     height= 40,
                     font= ('Roboto', 15),
                     text_color= 'white',
@@ -1091,7 +1092,7 @@ if __name__ == '__main__':
                     text_color= '#70ceff',
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/quilt.png'), size= (96, 96))
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/quilt.png'), size= (96, 96))
 
                 )
                 InstallQuiltVersion.place_configure(relx= 0.7_3, rely= 0.2_7, anchor= 'sw')
@@ -1137,7 +1138,7 @@ if __name__ == '__main__':
                     corner_radius= 20,
                     bg_color= '#232323',
                     fg_color= '#232323',
-                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/quilt.png'), size= (26, 26)),
+                    image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/quilt.png'), size= (26, 26)),
                     height= 40,
                     font= ('Roboto', 15),
                     text_color= 'white',
@@ -1151,7 +1152,7 @@ if __name__ == '__main__':
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
-            HomeWindow.after(300, HomeWindow.iconbitmap, f'{self.PATH_ASSETS}/logo.ico')
+            HomeWindow.after(300, HomeWindow.iconbitmap, f'{self.ASSETS_PATH}/logo.ico')
             HomeWindow.geometry('1290x720')
             HomeWindow.minsize(1290, 720)
             HomeWindow.maxsize(1920, 1080)
@@ -1161,7 +1162,7 @@ if __name__ == '__main__':
                 HomeWindow,
                 text= None,
                 fg_color= self.COLOR,
-                image=  customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/logo.png'), size= (160, 160)),
+                image=  customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/logo.png'), size= (160, 160)),
                 bg_color= self.COLOR
             )
             CanvasLogo.place_configure(relx= 0.0_2, rely= 0.0_4, anchor= 'nw')
@@ -1171,7 +1172,7 @@ if __name__ == '__main__':
                 corner_radius= 20,
                 bg_color= self.COLOR,
                 fg_color= self.COLOR,
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/discord.png'), size= (96, 96)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/discord.png'), size= (96, 96)),
                 height= 35,
                 text= None,
                 command= discord
@@ -1183,7 +1184,7 @@ if __name__ == '__main__':
                 corner_radius= 20,
                 bg_color= self.COLOR,
                 fg_color= self.COLOR,
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/github.png'), size= (96, 96)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/github.png'), size= (96, 96)),
                 height= 35,
                 text= None,
                 command= github
@@ -1195,7 +1196,7 @@ if __name__ == '__main__':
                 corner_radius= 20,
                 bg_color= self.COLOR,
                 fg_color= self.COLOR,
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/donate.png'), size= (96, 96)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/donate.png'), size= (96, 96)),
                 height= 35,
                 text= None,
                 command= paypal
@@ -1209,7 +1210,7 @@ if __name__ == '__main__':
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Versiones y Mods',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/download.png'), size= (22, 22)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/download.png'), size= (22, 22)),
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
@@ -1225,7 +1226,7 @@ if __name__ == '__main__':
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Lanzar',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/config.png'), size= (22, 22)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/config.png'), size= (22, 22)),
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
@@ -1243,7 +1244,7 @@ if __name__ == '__main__':
                 fg_color= '#0077ff',
                 corner_radius= 20,
                 text= 'Cuentas',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/account.png'), size= (22, 22)),
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/account.png'), size= (22, 22)),
                 compound= 'left',
                 font= ('Roboto', 15),
                 border_width= 2,
@@ -1270,7 +1271,7 @@ if __name__ == '__main__':
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/launch.png'), size= (96, 96))
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/launch.png'), size= (96, 96))
             )
             LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')
 
@@ -1313,7 +1314,7 @@ if __name__ == '__main__':
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/java.png'), size= (96, 96))
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/java.png'), size= (96, 96))
             )
             JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
 
@@ -1409,7 +1410,7 @@ if __name__ == '__main__':
                 text_color= '#70ceff',
                 bg_color= '#232323',
                 fg_color= '#232323',
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.PATH_ASSETS}/optimize.png'), size= (96, 96))
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/optimize.png'), size= (96, 96))
 
             )
             OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
@@ -1460,7 +1461,7 @@ if __name__ == '__main__':
                 else:    
                     OpenOrClose.deselect()  
 
-            NotifierWindows(self.PATH_ASSETS, 'Crimson Launcher | Notificación', 'El launcher se ha iniciado correctamente.')        
+            NotifierWindows(self.ASSETS_PATH, 'Crimson Launcher | Notificación', 'El launcher se ha iniciado correctamente.')        
         
             HomeWindow.mainloop()
 
@@ -1470,8 +1471,8 @@ if __name__ == '__main__':
 
             Logging().debug('Terminating...')
             Logging().warning('If there is a JDK in the installation queue, it cannot be closed quickly.')
-            self.CRIMSON_BACKGROUND.shutdown()
-            Logging().debug('Terminated.')
+            self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown()
+            Logging().debug('Terminated all processes.')
             sys.exit(0)
 
     def get_user() -> str:
