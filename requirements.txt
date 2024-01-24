@@ -1,4 +1,4 @@
-shutil
+psutil
 install-jdk
 minecraft-launcher-lib
 customtkinter
