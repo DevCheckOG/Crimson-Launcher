@@ -30,13 +30,14 @@ SOFTWARE.
 
 """
 
+from email import message
 import os
 import json
 import getpass
 import platform
 import shutil
 import sys
-from typing import List, Literal, Dict
+from typing import Callable, List, Literal, Dict
 import webbrowser
 import minecraft_launcher_lib
 import psutil
@@ -47,6 +48,7 @@ import signal
 import winotify
 import coloredlogs
 import logging
+import time
 from PIL import Image
 from tkinter import messagebox
 from concurrent.futures import ThreadPoolExecutor
@@ -88,6 +90,78 @@ if __name__ == '__main__':
         Logging().critical(f'System not compatible.')
         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         sys.exit(0)                   
+
+    class Download:
+
+        def __init__(self, os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame) -> None:
+
+            self.os : Literal['Windows', 'Linux'] = os
+            self.path : str = path
+
+            self.os = 'Windows' if self.path.find('C:') != -1 else 'Linux'
+
+            self.software : Literal['Vanilla', 'Fabric', 'Quilt'] = software
+            self.version : str = version
+            self.parent = parent
+            self.frame_center = frame_center
+
+            self.callback_dict : minecraft_launcher_lib.types.CallbackDict = {
+
+                "setStatus": self.logging_status
+
+            }
+            
+            if self.os == 'Windows' and self.software == 'Vanilla': self.download_vanilla()
+
+            elif self.os == 'Windows' and self.software == 'Fabric': self.download_fabric()
+
+            elif self.os == 'Windows' and self.software == 'Quilt': self.download_quilt()
+
+        def download_vanilla(self) -> None:
+
+            try:
+
+                for name in self.frame_center.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkSwitch):
+
+                        name[1].configure(state= 'disabled')
+                        continue
+                
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión vanilla {self.version}...', type= 'ok', parent= self.parent)
+                Logging().info(f'Downloading Vanilla version {self.version}...')
+
+                time.sleep(3)
+
+                minecraft_launcher_lib.install.install_minecraft_version(self.version, self.path, self.callback_dict)
+
+            except Exception as e:
+
+                for name in self.frame_center.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkSwitch):
+
+                        name[1].configure(state= 'normal')
+                        continue
+                
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión vanilla {self.version}.', type= 'ok', parent= self.parent)
+                Logging().error(f'Error while downloading Vanilla version: {e}')
+
+        def download_fabric(self) -> None:
+
+            ...
+
+        def download_quilt(self) -> None:
+
+            ...     
+
+        def logging_status(self, status: str) -> None:
+
+            Logging().info(status)
+
+    def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame) -> None:   
+
+        Download(os, path, software, version, parent, frame_center)     
 
     class NotifierWindows:
 
@@ -308,12 +382,26 @@ if __name__ == '__main__':
                             Logging().info('Java 8 not found. Installing... (JDK in Queue)')
                             break
 
-            self.MINECRAFT_VANILLA_RELEASES : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'release']
-            self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = [version['id'] for version in minecraft_launcher_lib.utils.get_version_list() if version['type'] == 'snapshot']
-            self.FABRIC_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == True]
-            self.FABRIC_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.fabric.get_all_minecraft_versions() if version['stable'] == False]
-            self.QUILT_RELEASES : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == True]
-            self.QUILT_SNAPSHOTS : List[str] = [version['version'] for version in minecraft_launcher_lib.quilt.get_all_minecraft_versions() if version['stable'] == False]
+            for vanilla_version in minecraft_launcher_lib.utils.get_version_list():
+
+                if vanilla_version['type'] == 'release':
+                    self.MINECRAFT_VANILLA_RELEASES.append(vanilla_version['id'])
+                elif vanilla_version['type'] == 'snapshot':
+                    self.MINECRAFT_VANILLA_SNAPSHOTS.append(vanilla_version['id'])
+            
+            for fabric_version in minecraft_launcher_lib.fabric.get_all_minecraft_versions():
+
+                if fabric_version['stable']:
+                    self.FABRIC_RELEASES.append(fabric_version['version'])
+                else:
+                    self.FABRIC_SNAPSHOTS.append(fabric_version['version'])
+            
+            for quilt_version in minecraft_launcher_lib.quilt.get_all_minecraft_versions():
+
+                if quilt_version['stable']:
+                    self.QUILT_RELEASES.append(quilt_version['version'])
+                else:
+                    self.QUILT_SNAPSHOTS.append(quilt_version['version'])   
 
             Logging().debug('Vanilla releases: ' + ', '.join(self.MINECRAFT_VANILLA_RELEASES))
             Logging().debug('Vanilla snapshots: ' + ', '.join(self.MINECRAFT_VANILLA_SNAPSHOTS))
@@ -962,6 +1050,10 @@ if __name__ == '__main__':
 
                     webbrowser.open_new_tab(constants.QUILT.value)
                     return
+                
+                def download_specific_version(version : str) -> None:
+
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Vanilla', version, HomeWindow, FrameDecorationCenter)
 
                 VersionsAndMods.configure(state= 'disabled')
                 Launch.configure(state= 'normal')
@@ -1026,7 +1118,8 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.MINECRAFT_VANILLA_RELEASES
+                    values= self.MINECRAFT_VANILLA_RELEASES,
+                    command= download_specific_version
                 )
                 SelectVanillaReleaseVersion.place_configure(relx= 0.0_7, rely= 0.5_1, anchor= 'sw')
                 
@@ -1497,7 +1590,7 @@ if __name__ == '__main__':
 
             Logging().debug('Terminating...')
             Logging().warning('If there is a JDK in the installation queue, it cannot be closed quickly.')
-            self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown()
+            self.CRIMSON_BACKGROUND_THREAD_POOL.shutdown(cancel_futures= True)
             Logging().debug('Terminated all processes.')
             sys.exit(0)
 
