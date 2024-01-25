@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
         def __init__(self) -> None:
 
-            coloredlogs.install(level='DEBUG', logger= LOGGER, milliseconds= True)
+            coloredlogs.install(level='DEBUG', logger= LOGGER)
 
         def debug(self, msg : str) -> None:
 
