@@ -34,9 +34,10 @@ import os
 import json
 import getpass
 import platform
+import re
 import shutil
 import sys
-from typing import List, Literal, Dict
+from typing import Any, List, Literal, Dict
 import uuid
 import webbrowser
 import minecraft_launcher_lib
@@ -59,7 +60,7 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    LOGGER = logging.getLogger(__name__)
+    LOGGER = logging.getLogger('Crimson Launcher')
     DOWNLOAD_STATUS : bool = False
     
     class Logging:
@@ -127,6 +128,8 @@ if __name__ == '__main__':
 
             try:
 
+                DOWNLOAD_STATUS = True
+
                 for name in self.frame_center.children.items():
 
                     if isinstance(name[1], customtkinter.CTkOptionMenu):
@@ -139,8 +142,6 @@ if __name__ == '__main__':
                 Logging().info(f'Downloading Vanilla version {self.version}...')
 
                 time.sleep(3)
-
-                DOWNLOAD_STATUS = True
 
                 minecraft_launcher_lib.install.install_minecraft_version(self.version, self.path, self.callback_dict)
 
@@ -173,7 +174,7 @@ if __name__ == '__main__':
 
                     config = json.load(read)  
 
-                    profile = {
+                    profile : Dict[str, dict[str, Any]] = {
 
                         f'{uuid.uuid4().hex}' : {
 
@@ -283,7 +284,7 @@ if __name__ == '__main__':
             self.OPEN_OR_CLOSE : bool = False
             self.JAVA_LIST : List[str] = []
             self.ACCOUNTS_LIST : List[str] = []
-            self.ACCOUNT_CURRENT : Dict[str, str] = {}
+            self.ACCOUNT_CURRENT : str = ''
 
             Logging().debug(f'All variables initialized.')
 
@@ -304,6 +305,10 @@ if __name__ == '__main__':
             Logging().debug(f'Starting the checker...')
 
             self.checker()
+
+        def launch(self) -> None:
+
+            ...    
 
         def java(self, version : Literal['17', '8']) -> None:
 
@@ -452,25 +457,11 @@ if __name__ == '__main__':
 
                 for version in os.listdir(self.PATH + 'versions/'):
 
-                    if version.find('OptiFine') != -1:
+                    # Solo Vanilla
 
-                        continue
+                    if re.match(r'^[0-9.]+$', version):
 
-                    elif version.find('fabric-loader') != -1:
-
-                        continue
-
-                    elif version.find('Quilt') != -1:
-
-                        continue
-
-                    elif version.find('Forge') != -1:
-
-                        continue
-                    
-                    # Solo vanilla
-
-                    TempListVersions.append(version)            
+                        TempListVersions.append(version)            
 
             with open(self.PATH + 'launcher_profiles.json', 'r') as read:
 
@@ -715,7 +706,7 @@ if __name__ == '__main__':
                                 if config['accounts'][key]['nickname'].lower() == ACCOUNT.lower():
 
                                     config['accounts'][key]['select'] = True 
-                                    self.ACCOUNT_CURRENT = config['accounts'][key]['nickname']
+                                    self.ACCOUNT_CURRENT = account
                                     break        
 
                         with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
