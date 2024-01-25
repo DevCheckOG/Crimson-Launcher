@@ -36,7 +36,7 @@ import getpass
 import platform
 import shutil
 import sys
-from typing import Callable, List, Literal, Dict
+from typing import List, Literal, Dict
 import uuid
 import webbrowser
 import minecraft_launcher_lib
