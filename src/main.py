@@ -272,7 +272,7 @@ if __name__ == '__main__':
             self.RAM_ASSIGNED : int = 500
             self.ASSETS_PATH : str = os.getcwd().replace('\\', '/') + '/assets'
             self.FONTS_PATH : str = os.getcwd().replace('\\', '/') + '/fonts'
-            self.COLOR : str = '#333333'
+            self.COLOR : str = '#232323'
             self.MINECRAFT_VANILLA_RELEASES : List[str] = []
             self.MINECRAFT_VANILLA_SNAPSHOTS : List[str] = []
             self.FABRIC_RELEASES : List[str] = []
@@ -869,8 +869,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/no_premium.png'), size= (96, 96))
 
                 )
@@ -885,15 +885,15 @@ if __name__ == '__main__':
                     width= 210,
                     height= 35,
                     corner_radius= 20,
-                    bg_color= '#232323',
-                    fg_color= '#232323'
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR
                 )
                 EntryNoPremiumAccount.place_configure(relx= 0.0_8, rely= 0.4_1, anchor= 'sw')
 
                 CreateNoPremiumAccount : customtkinter.CTkButton = customtkinter.CTkButton(
                     FrameDecorationCenter,
                     height= 37,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     fg_color= '#0077ff',
                     corner_radius= 20,
                     text= 'Crear cuenta',
@@ -912,8 +912,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/select.png'), size= (96, 96))
 
                 )
@@ -927,12 +927,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -952,8 +952,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/garbage.png'), size= (96, 96))
 
                 )  
@@ -963,12 +963,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -988,8 +988,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/premium.png'), size= (96, 96))
 
                 )
@@ -1004,8 +1004,8 @@ if __name__ == '__main__':
                     width= 210,
                     height= 35,
                     corner_radius= 20,
-                    bg_color= '#232323',
-                    fg_color= '#232323'
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR
                 )
                 EntryGmailPremiumAccount.place_configure(relx= 0.9_6, rely= 0.3_4, anchor= 'ne')
 
@@ -1018,15 +1018,15 @@ if __name__ == '__main__':
                     width= 210,
                     height= 35,
                     corner_radius= 20,
-                    bg_color= '#232323',
-                    fg_color= '#232323'
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR
                 )
                 EntryPasswordPremiumAccount.place_configure(relx= 0.9_6, rely= 0.4_7, anchor= 'ne')
 
                 LoginPremiumAccount : customtkinter.CTkButton = customtkinter.CTkButton(
                     FrameDecorationCenter,
                     height= 37,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     fg_color= '#0077ff',
                     corner_radius= 20,
                     text= 'Iniciar Sesión',
@@ -1202,8 +1202,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/vanilla.png'), size= (96, 96))
 
                 )
@@ -1213,12 +1213,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1232,12 +1232,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1252,8 +1252,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/fabric.png'), size= (96, 96))
 
                 )
@@ -1263,12 +1263,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1281,12 +1281,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1298,8 +1298,8 @@ if __name__ == '__main__':
                 FabricMC : customtkinter.CTkButton = customtkinter.CTkButton(
                     FrameDecorationCenter,
                     corner_radius= 20,
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/fabric.png'), size= (26, 26)),
                     height= 40,
                     font= ('JetBrains', 15),
@@ -1317,8 +1317,8 @@ if __name__ == '__main__':
                     compound= 'left',
                     font= ('JetBrains', 30),
                     text_color= '#70ceff',
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/quilt.png'), size= (96, 96))
 
                 )
@@ -1328,12 +1328,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1346,12 +1346,12 @@ if __name__ == '__main__':
                     FrameDecorationCenter,
                     height= 40,
                     corner_radius= 20,
-                    bg_color= '#232323',
+                    bg_color= self.COLOR,
                     font= ('JetBrains', 15),
                     dropdown_font= ('JetBrains', 15),
                     dynamic_resizing= False,
                     text_color= 'white',
-                    dropdown_fg_color= '#232323',
+                    dropdown_fg_color= self.COLOR,
                     dropdown_text_color= 'white',
                     width= 210,
                     fg_color= '#0077ff', 
@@ -1363,8 +1363,8 @@ if __name__ == '__main__':
                 Quilt : customtkinter.CTkButton = customtkinter.CTkButton(
                     FrameDecorationCenter,
                     corner_radius= 20,
-                    bg_color= '#232323',
-                    fg_color= '#232323',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
                     image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/quilt.png'), size= (26, 26)),
                     height= 40,
                     font= ('JetBrains', 15),
@@ -1492,9 +1492,7 @@ if __name__ == '__main__':
                 HomeWindow,
                 corner_radius= 20,
                 bg_color= self.COLOR,
-                fg_color= '#232323',
-                border_color= '#0077ff',
-                border_width= 2
+                fg_color= self.COLOR
             )
             FrameDecorationCenter.place_configure(relx= 0.09, rely= 0.9_1, anchor= 'sw', relheight= 0.6_3, relwidth= 0.7_2)
 
@@ -1504,8 +1502,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('JetBrains', 30),
                 text_color= '#70ceff',
-                bg_color= '#232323',
-                fg_color= '#232323',
+                bg_color= self.COLOR,
+                fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/launch.png'), size= (96, 96))
             )
             LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')
@@ -1523,12 +1521,12 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 height= 40,
                 corner_radius= 20,
-                bg_color= '#232323',
+                bg_color= self.COLOR,
                 font= ('JetBrains', 15),
                 dropdown_font= ('JetBrains', 15),
                 dynamic_resizing= False,
                 text_color= 'white',
-                dropdown_fg_color= '#232323',
+                dropdown_fg_color= self.COLOR,
                 dropdown_text_color= 'white',
                 width= 210,
                 fg_color= '#0077ff', 
@@ -1547,8 +1545,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('JetBrains', 30),
                 text_color= '#70ceff',
-                bg_color= '#232323',
-                fg_color= '#232323',
+                bg_color= self.COLOR,
+                fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/java.png'), size= (96, 96))
             )
             JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
@@ -1579,12 +1577,12 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 height= 40,
                 corner_radius= 20,
-                bg_color= '#232323',
+                bg_color= self.COLOR,
                 font= ('JetBrains', 15),
                 dropdown_font= ('JetBrains', 15),
                 dynamic_resizing= False,
                 text_color= 'white',
-                dropdown_fg_color= '#232323',
+                dropdown_fg_color= self.COLOR,
                 dropdown_text_color= 'white',
                 width= 210,
                 fg_color= '#0077ff', 
@@ -1606,11 +1604,11 @@ if __name__ == '__main__':
                 from_= 1000,
                 width= 200,
                 height= 25,
-                bg_color= '#232323',
+                bg_color= self.COLOR,
                 corner_radius= 20,
                 button_corner_radius= 20,
                 hover= False,
-                button_color= '#232323',
+                button_color= self.COLOR,
                 progress_color= '#0077ff',
                 command= assign_ram
             )    
@@ -1622,8 +1620,8 @@ if __name__ == '__main__':
                 text= f'Memoria asignada: {self.RAM_ASSIGNED} MB',
                 font= ('JetBrains', 15),
                 text_color= '#70ceff',
-                bg_color= '#232323',
-                fg_color= '#232323'
+                bg_color= self.COLOR,
+                fg_color= self.COLOR
             )
             AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_0, anchor= 'center')
 
@@ -1632,8 +1630,8 @@ if __name__ == '__main__':
                 text= f'Memoria disponible: {round(1 * psutil.virtual_memory().total / (1024 ** 2))} MB',
                 font= ('JetBrains', 15),
                 text_color= '#70ceff',
-                bg_color= '#232323',
-                fg_color= '#232323'
+                bg_color= self.COLOR,
+                fg_color= self.COLOR
             )
             TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_5, anchor= 'center')
 
@@ -1643,8 +1641,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('JetBrains', 30),
                 text_color= '#70ceff',
-                bg_color= '#232323',
-                fg_color= '#232323',
+                bg_color= self.COLOR,
+                fg_color= self.COLOR,
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/optimize.png'), size= (96, 96))
 
             )
@@ -1654,7 +1652,7 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 text= ' Optimizar Java',
                 text_color= '#70ceff',
-                bg_color= '#232323',
+                bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 font= ('JetBrains', 18),
                 onvalue= True,
@@ -1671,7 +1669,7 @@ if __name__ == '__main__':
                 FrameDecorationCenter,
                 text= 'Abrir o cerrar al iniciar',
                 text_color= '#70ceff',
-                bg_color= '#232323',
+                bg_color= self.COLOR,
                 fg_color= '#0077ff',
                 font= ('JetBrains', 18),
                 onvalue= True,
