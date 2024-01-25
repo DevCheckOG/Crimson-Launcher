@@ -30,7 +30,6 @@ SOFTWARE.
 
 """
 
-from email import message
 import os
 import json
 import getpass
