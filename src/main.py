@@ -37,6 +37,7 @@ import platform
 import shutil
 import sys
 from typing import Callable, List, Literal, Dict
+import uuid
 import webbrowser
 import minecraft_launcher_lib
 import psutil
@@ -57,7 +58,9 @@ from constants import constants
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     LOGGER = logging.getLogger(__name__)
+    DOWNLOAD_STATUS : bool = False
     
     class Logging:
 
@@ -92,7 +95,7 @@ if __name__ == '__main__':
 
     class Download:
 
-        def __init__(self, os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame) -> None:
+        def __init__(self, os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str) -> None:
 
             self.os : Literal['Windows', 'Linux'] = os
             self.path : str = path
@@ -101,8 +104,10 @@ if __name__ == '__main__':
 
             self.software : Literal['Vanilla', 'Fabric', 'Quilt'] = software
             self.version : str = version
-            self.parent = parent
-            self.frame_center = frame_center
+            self.parent : customtkinter.CTkToplevel = parent
+            self.frame_center : customtkinter.CTkFrame = frame_center
+            self.assets_path : str = assets_path
+            self.color : str = '#333333'
 
             self.callback_dict : minecraft_launcher_lib.types.CallbackDict = {
 
@@ -118,33 +123,92 @@ if __name__ == '__main__':
 
         def download_vanilla(self) -> None:
 
+            global DOWNLOAD_STATUS
+
             try:
 
                 for name in self.frame_center.children.items():
 
-                    if isinstance(name[1], customtkinter.CTkSwitch):
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
 
                         name[1].configure(state= 'disabled')
                         continue
                 
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Descargando la versión vanilla ({self.version}).')
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión vanilla {self.version}...', type= 'ok', parent= self.parent)
                 Logging().info(f'Downloading Vanilla version {self.version}...')
 
                 time.sleep(3)
 
-                minecraft_launcher_lib.install.install_minecraft_version(self.version, self.path, self.callback_dict)
+                DOWNLOAD_STATUS = True
 
-            except Exception as e:
+                minecraft_launcher_lib.install.install_minecraft_version(self.version, self.path, self.callback_dict)
 
                 for name in self.frame_center.children.items():
 
-                    if isinstance(name[1], customtkinter.CTkSwitch):
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
 
                         name[1].configure(state= 'normal')
                         continue
                 
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'La versión vanilla {self.version} ha sido descargada y instalada correctamente.')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'La versión vanilla {self.version} ha sido descargada y instalada correctamente.', type= 'ok', parent= self.parent)        
+                Logging().info(f'Vanilla version {self.version} downloaded and installed.')    
+
+                DOWNLOAD_STATUS = False
+
+                if not os.path.exists(self.path + 'launcher_profiles.json'):
+
+                    with open(self.path + 'launcher_profiles.json', 'w') as write:
+                        json.dump({
+                            'profiles' : {},                  
+                            'settings': {
+                                'enableAdvanced': False,
+                                'profileSorting': 'byName'
+                            },
+                            'version': 3
+                        }, write, indent= 5)
+
+                with open(self.path + 'launcher_profiles.json', 'r') as read:
+
+                    config = json.load(read)  
+
+                    profile = {
+
+                        f'{uuid.uuid4().hex}' : {
+
+                            'name' : f'{self.version}',
+                            'type': 'custom',
+                            'resolution': {
+                                'width': 854,
+                                'height': 480,
+                                'fullscreen': True
+                            },
+
+                        }
+
+                    }
+
+                    config['profiles'].update(profile)
+
+                with open(self.path + 'launcher_profiles.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)    
+
+            except Exception as e:
+
+                DOWNLOAD_STATUS = False    
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Error al descargar la versión vanilla ({self.version}).')
                 messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión vanilla {self.version}.', type= 'ok', parent= self.parent)
                 Logging().error(f'Error while downloading Vanilla version: {e}')
+
+                for name in self.frame_center.children.items():
+
+                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                        name[1].configure(state= 'normal')
+                        continue
 
         def download_fabric(self) -> None:
 
@@ -158,9 +222,9 @@ if __name__ == '__main__':
 
             Logging().info(status)
 
-    def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame) -> None:   
+    def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str) -> None:   
 
-        Download(os, path, software, version, parent, frame_center)     
+        Download(os, path, software, version, parent, frame_center, assets_path)     
 
     class NotifierWindows:
 
@@ -380,6 +444,57 @@ if __name__ == '__main__':
                             self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.java, '8')
                             Logging().info('Java 8 not found. Installing... (JDK in Queue)')
                             break
+
+            TempListVersions : list[str] = []
+            TempListDeletedVersions : list[str] = []
+
+            if os.path.exists(self.PATH + 'versions/'):
+
+                for version in os.listdir(self.PATH + 'versions/'):
+
+                    if version.find('OptiFine') != -1:
+
+                        continue
+
+                    elif version.find('fabric-loader') != -1:
+
+                        continue
+
+                    elif version.find('Quilt') != -1:
+
+                        continue
+
+                    elif version.find('Forge') != -1:
+
+                        continue
+                    
+                    # Solo vanilla
+
+                    TempListVersions.append(version)            
+
+            with open(self.PATH + 'launcher_profiles.json', 'r') as read:
+
+                config = json.load(read)
+
+                for key, data in config['profiles'].items():
+                    
+                    # Vanilla Check
+
+                    if any(data.get('name') == version for version in TempListVersions):
+
+                        continue
+
+                    else:
+
+                        TempListDeletedVersions.append(key)
+
+                for key in TempListDeletedVersions:
+
+                    config['profiles'].pop(key, None)
+
+            with open(self.PATH + 'launcher_profiles.json', 'w') as write:
+
+                json.dump(config, write, indent= 5)
 
             for vanilla_version in minecraft_launcher_lib.utils.get_version_list():
 
@@ -1052,7 +1167,7 @@ if __name__ == '__main__':
                 
                 def download_specific_version(version : str) -> None:
 
-                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Vanilla', version, HomeWindow, FrameDecorationCenter)
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Vanilla', version, HomeWindow, FrameDecorationCenter, self.ASSETS_PATH)
 
                 VersionsAndMods.configure(state= 'disabled')
                 Launch.configure(state= 'normal')
@@ -1269,6 +1384,15 @@ if __name__ == '__main__':
                     hover= False
                 )
                 Quilt.place_configure(relx= 0.7_7, rely= 0.8_8, anchor= 'sw')
+
+                if DOWNLOAD_STATUS:
+
+                    for name in FrameDecorationCenter.children.items():
+
+                        if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                            name[1].configure(state= 'disabled')
+                            continue
 
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
