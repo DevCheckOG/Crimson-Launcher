@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     class Download:
 
-        def __init__(self, os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str) -> None:
+        def __init__(self, os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str, download_status : customtkinter.CTkLabel, download_version : customtkinter.CTkLabel) -> None:
 
             self.os : Literal['Windows', 'Linux'] = os
             self.path : str = path
@@ -109,6 +109,8 @@ if __name__ == '__main__':
             self.frame_center : customtkinter.CTkFrame = frame_center
             self.assets_path : str = assets_path
             self.color : str = '#333333'
+            self.download_status : customtkinter.CTkLabel = download_status
+            self.download_version : customtkinter.CTkLabel = download_version
 
             self.callback_dict : minecraft_launcher_lib.types.CallbackDict = {
 
@@ -130,31 +132,25 @@ if __name__ == '__main__':
 
                 DOWNLOAD_STATUS = True
 
-                for name in self.frame_center.children.items():
-
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
-
-                        name[1].configure(state= 'disabled')
-                        continue
+                self.hidden_menus_download()
                 
-                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Descargando la versión vanilla ({self.version}).')
-                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión vanilla {self.version}...', type= 'ok', parent= self.parent)
-                Logging().info(f'Downloading Vanilla version {self.version}...')
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Descargando la versión {self.software.lower()} ({self.version}).')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión {self.software.lower()} {self.version}...', type= 'ok', parent= self.parent)
+                Logging().info(f'Downloading {self.software} version {self.version}...')
+
+                self.set_default_status()
 
                 time.sleep(3)
 
                 minecraft_launcher_lib.install.install_minecraft_version(self.version, self.path, self.callback_dict)
 
-                for name in self.frame_center.children.items():
-
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
-
-                        name[1].configure(state= 'normal')
-                        continue
+                self.hidden_status()  
                 
-                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'La versión vanilla {self.version} ha sido descargada y instalada correctamente.')
-                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'La versión vanilla {self.version} ha sido descargada y instalada correctamente.', type= 'ok', parent= self.parent)        
-                Logging().info(f'Vanilla version {self.version} downloaded and installed.')    
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.', type= 'ok', parent= self.parent)        
+                Logging().info(f'{self.software} version {self.version} downloaded and installed.')    
+
+                self.enable_menus_download()  
 
                 DOWNLOAD_STATUS = False
 
@@ -198,34 +194,146 @@ if __name__ == '__main__':
 
             except Exception as e:
 
-                DOWNLOAD_STATUS = False    
+                DOWNLOAD_STATUS = False   
                 
-                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Error al descargar la versión vanilla ({self.version}).')
-                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión vanilla {self.version}.', type= 'ok', parent= self.parent)
-                Logging().error(f'Error while downloading Vanilla version: {e}')
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Error al descargar la versión {self.software.lower()} ({self.version}).')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión {self.software.lower()} {self.version}.', type= 'ok', parent= self.parent)
+                Logging().error(f'Error while downloading {self.software} version: {e}')
 
-                for name in self.frame_center.children.items():
+                self.hidden_status()
 
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
-
-                        name[1].configure(state= 'normal')
-                        continue
+                self.enable_menus_download()
 
         def download_fabric(self) -> None:
 
-            ...
+            global DOWNLOAD_STATUS
+
+            try:
+
+                DOWNLOAD_STATUS = True
+
+                self.hidden_menus_download()
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Descargando la versión {self.software.lower()} ({self.version}).')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión {self.software.lower()} {self.version}...', type= 'ok', parent= self.parent)
+                Logging().info(f'Downloading {self.software} version {self.version}...')
+
+                self.set_default_status()
+
+                time.sleep(3)
+
+                minecraft_launcher_lib.fabric.install_fabric(self.version, self.path, minecraft_launcher_lib.fabric.get_latest_loader_version(), self.callback_dict)
+
+                self.hidden_status()  
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.', type= 'ok', parent= self.parent)        
+                Logging().info(f'{self.software} version {self.version} downloaded and installed.')    
+
+                self.enable_menus_download()  
+
+                DOWNLOAD_STATUS = False
+
+
+            except Exception as e:
+
+                DOWNLOAD_STATUS = False   
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Error al descargar la versión {self.software.lower()} ({self.version}).')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión {self.software.lower()} {self.version}.', type= 'ok', parent= self.parent)
+                Logging().error(f'Error while downloading {self.software} version: {e}')
+
+                self.hidden_status()
+
+                self.enable_menus_download()
 
         def download_quilt(self) -> None:
 
-            ...     
+            global DOWNLOAD_STATUS
+
+            try:
+
+                DOWNLOAD_STATUS = True
+
+                self.hidden_menus_download()
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Descargando la versión {self.software.lower()} ({self.version}).')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Descargando la versión {self.software.lower()} {self.version}...', type= 'ok', parent= self.parent)
+                Logging().info(f'Downloading {self.software} version {self.version}...')
+
+                self.set_default_status()
+
+                time.sleep(3)
+
+                minecraft_launcher_lib.quilt.install_quilt(self.version, self.path, minecraft_launcher_lib.quilt.get_latest_loader_version(), self.callback_dict)
+
+                self.hidden_status()  
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.')
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'La versión {self.software.lower()} {self.version} ha sido descargada y instalada correctamente.', type= 'ok', parent= self.parent)        
+                Logging().info(f'{self.software} version {self.version} downloaded and installed.')    
+
+                self.enable_menus_download()  
+
+                DOWNLOAD_STATUS = False
+
+
+            except Exception as e:
+
+                DOWNLOAD_STATUS = False   
+                
+                NotifierWindows(self.assets_path, 'Crimson Launcher | Notificación', f'Error al descargar la versión {self.software.lower()} ({self.version}).')
+                messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al descargar la versión {self.software.lower()} {self.version}.', type= 'ok', parent= self.parent)
+                Logging().error(f'Error while downloading {self.software} version: {e}')
+
+                self.hidden_status()
+
+                self.enable_menus_download()     
 
         def logging_status(self, status: str) -> None:
 
             Logging().info(status)
 
-    def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str) -> None:   
+            if len(status) >= 30:
 
-        Download(os, path, software, version, parent, frame_center, assets_path)     
+                status = status[0:30] + '...'
+
+            self.download_status.configure(text= status)
+            self.download_version.configure(text= f'{self.software} ({self.version})')
+
+        def hidden_status(self) -> None:
+
+            self.download_version.place_forget()
+            self.download_status.place_forget()     
+
+        def set_default_status(self) -> None:
+
+            self.download_version.place_configure(relx= 0.0_7, rely= 0.8_5, anchor= 'sw')
+            self.download_status.place_configure(relx= 0.0_7, rely= 0.9, anchor= 'sw')
+
+            self.download_version.configure(text= f'{self.software} ({self.version})')   
+
+        def enable_menus_download(self) -> None:
+
+            for name in self.frame_center.children.items():
+
+                if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                    name[1].configure(state= 'normal')
+                    continue 
+
+        def hidden_menus_download(self) -> None:
+
+            for name in self.frame_center.children.items():
+
+                if isinstance(name[1], customtkinter.CTkOptionMenu):
+
+                    name[1].configure(state= 'disabled')
+                    continue          
+
+    def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str, download_status : customtkinter.CTkLabel, download_version : customtkinter.CTkLabel) -> None:   
+
+        Download(os, path, software, version, parent, frame_center, assets_path, download_status, download_version)     
 
     class NotifierWindows:
 
@@ -1156,9 +1264,17 @@ if __name__ == '__main__':
                     webbrowser.open_new_tab(constants.QUILT.value)
                     return
                 
-                def download_specific_version(version : str) -> None:
+                def download_specific_version_vanilla(version : str) -> None:
 
-                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Vanilla', version, HomeWindow, FrameDecorationCenter, self.ASSETS_PATH)
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Vanilla', version, HomeWindow, FrameDecorationCenter, self.ASSETS_PATH, DownloadStatus, DownloadVersion)
+
+                def download_specific_version_fabric(version : str) -> None:
+
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Fabric', version, HomeWindow, FrameDecorationCenter, self.ASSETS_PATH, DownloadStatus, DownloadVersion)  
+
+                def download_specific_version_quilt(version : str) -> None:
+
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(download, 'Windows', self.PATH, 'Quilt', version, HomeWindow, FrameDecorationCenter, self.ASSETS_PATH, DownloadStatus, DownloadVersion)      
 
                 VersionsAndMods.configure(state= 'disabled')
                 Launch.configure(state= 'normal')
@@ -1224,7 +1340,7 @@ if __name__ == '__main__':
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
                     values= self.MINECRAFT_VANILLA_RELEASES,
-                    command= download_specific_version
+                    command= download_specific_version_vanilla
                 )
                 SelectVanillaReleaseVersion.place_configure(relx= 0.0_7, rely= 0.5_1, anchor= 'sw')
                 
@@ -1242,9 +1358,34 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.MINECRAFT_VANILLA_SNAPSHOTS
+                    values= self.MINECRAFT_VANILLA_SNAPSHOTS,
+                    command= download_specific_version_vanilla
                 )
                 SelectVanillaSnapshotVersion.place_configure(relx= 0.0_7, rely= 0.7_5, anchor= 'sw')
+
+                DownloadVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= None,
+                    font= ('JetBrains', 15),
+                    text_color= '#70ceff',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR
+                )
+
+                DownloadStatus : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                    FrameDecorationCenter,
+                    text= None,
+                    font= ('JetBrains', 15),
+                    text_color= '#70ceff',
+                    bg_color= self.COLOR,
+                    fg_color= self.COLOR,
+                    width= 50
+                )
+
+                if DOWNLOAD_STATUS:
+
+                    DownloadVersion.place_configure(relx= 0.0_7, rely= 0.8_5, anchor= 'sw')
+                    DownloadStatus.place_configure(relx= 0.0_7, rely= 0.9, anchor= 'sw')
 
                 InstallFabricVersion : customtkinter.CTkLabel = customtkinter.CTkLabel(
                     FrameDecorationCenter,
@@ -1273,7 +1414,8 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.FABRIC_RELEASES
+                    values= self.FABRIC_RELEASES,
+                    command= download_specific_version_fabric
                 )
                 SelectFabricReleaseVersion.place_configure(relx= 0.4, rely= 0.5_1, anchor= 'sw')
 
@@ -1291,7 +1433,8 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.FABRIC_SNAPSHOTS
+                    values= self.FABRIC_SNAPSHOTS,
+                    command= download_specific_version_fabric
                 )
                 SelectFabricSnapshotVersion.place_configure(relx= 0.4, rely= 0.7_5, anchor= 'sw')
 
@@ -1338,7 +1481,8 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.QUILT_RELEASES
+                    values= self.QUILT_RELEASES,
+                    command= download_specific_version_quilt
                 )
                 SelectQuiltReleaseVersion.place_configure(relx= 0.7_4, rely= 0.5_1, anchor= 'sw')
 
@@ -1356,7 +1500,8 @@ if __name__ == '__main__':
                     width= 210,
                     fg_color= '#0077ff', 
                     button_color= '#0077ff',
-                    values= self.QUILT_SNAPSHOTS
+                    values= self.QUILT_SNAPSHOTS,
+                    command= download_specific_version_quilt
                 )
                 SelectQuiltSnapshotVersion.place_configure(relx= 0.7_4, rely= 0.7_5, anchor= 'sw')
 
@@ -1492,7 +1637,9 @@ if __name__ == '__main__':
                 HomeWindow,
                 corner_radius= 20,
                 bg_color= self.COLOR,
-                fg_color= self.COLOR
+                fg_color= self.COLOR,
+                border_color= '#0077ff',
+                border_width= 2
             )
             FrameDecorationCenter.place_configure(relx= 0.09, rely= 0.9_1, anchor= 'sw', relheight= 0.6_3, relwidth= 0.7_2)
 
