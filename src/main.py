@@ -97,25 +97,35 @@ if __name__ == '__main__':
 
     class RenderMinecraftNews:
 
-        def __init__(self, assets_path : str, master : customtkinter.CTkToplevel) -> None:
-
-            self.assets_path : str = assets_path
-            self.master : customtkinter.CTkToplevel = master
+        def __init__(self, button : customtkinter.CTkButton) -> None:
+            
+            self.button : customtkinter.CTkButton = button
+            self.render_news()
 
         def render_news(self) -> None:
 
-            ...
+            self.button.configure(state= 'disabled')
+
+            webview.create_window('Noticias de Minecraft', url= 'https://www.minecraft.net/es-es/articles', width= 1000, height= 800, minimized= False)
+            webview.start()
+
+            self.button.configure(state= 'normal')
 
     class RenderLauncherNews:
 
-        def __init__(self, assets_path : str, master : customtkinter.CTkToplevel) -> None:
-
-            self.assets_path : str = assets_path
-            self.master : customtkinter.CTkToplevel = master
+        def __init__(self, button : customtkinter.CTkButton) -> None:
+            
+            self.button : customtkinter.CTkButton = button
+            self.render_news()
 
         def render_news(self) -> None:
 
-            ...       
+            self.button.configure(state= 'disabled')  
+
+            webview.create_window('Noticias de Minecraft', url= '...', width= 1000, height= 800, minimized= False)
+            webview.start()  
+
+            self.button.configure(state= 'normal')   
 
     class Download:
 
@@ -357,6 +367,14 @@ if __name__ == '__main__':
     def download(os : Literal['Windows', 'Linux'], path : str, software : Literal['Vanilla', 'Fabric', 'Quilt'], version : str, parent : customtkinter.CTkToplevel, frame_center : customtkinter.CTkFrame, assets_path : str, download_status : customtkinter.CTkLabel, download_version : customtkinter.CTkLabel) -> None:   
 
         Download(os, path, software, version, parent, frame_center, assets_path, download_status, download_version)     
+
+    def StartMinecraftNews(button : customtkinter.CTkButton) -> None:
+
+        RenderMinecraftNews(button)   
+
+    def StartLauncherNews(button : customtkinter.CTkButton) -> None:
+
+        RenderLauncherNews(button)    
 
     class NotifierWindows:
 
