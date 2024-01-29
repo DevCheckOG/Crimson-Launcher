@@ -41,6 +41,7 @@ from typing import Any, List, Literal, Dict
 import uuid
 import webbrowser
 import minecraft_launcher_lib
+import subprocess
 import psutil
 import jdk
 import customtkinter
@@ -391,6 +392,7 @@ if __name__ == '__main__':
             self.JAVA_LIST : List[str] = []
             self.ACCOUNTS_LIST : List[str] = []
             self.ACCOUNT_CURRENT : str = ''
+            self.DEBUG_MODE : bool = True
 
             Logging().debug(f'All variables initialized.')
 
@@ -412,9 +414,32 @@ if __name__ == '__main__':
 
             self.checker()
 
-        def launch(self) -> None:
+        def launch_minecraft(self, version : str) -> None:
 
-            ...    
+            ACCOUNT : str = self.ACCOUNT_CURRENT
+
+            if ACCOUNT.find(' | No Premium') != -1:
+
+                options : dict[str, Any] = {
+
+                    'username': ACCOUNT.replace(' | No Premium', ''),
+                    'uuid': uuid.uuid4().hex,
+                    'token': '',
+                    'jvmArguments': [],
+                    'executablePath': ''
+
+                }
+
+                options['jvmArguments'] = [f'-Xmx{self.RAM_ASSIGNED}M', '-Xms128M']
+                options['executablePath'] = self.JAVA_CURRENT        
+
+                Logging().info(f'Account: {ACCOUNT.replace(' | No Premium', '')}')
+                Logging().info(f'Options: {options}')
+                Logging().info(f'Launching Minecraft {version}...')
+
+                if self.DEBUG_MODE:
+                        
+                    subprocess.run(['start'] + [z.replace('\\', '/') for z in minecraft_launcher_lib.command.get_minecraft_command(version, self.PATH, options)], stdout= subprocess.PIPE, stderr= subprocess.PIPE)
 
         def java(self, version : Literal['17', '8']) -> None:
 
@@ -460,7 +485,8 @@ if __name__ == '__main__':
                             },
                             'launcher settings' : {
                                 'close_on_start' : False,
-                                'ram_asigned' : 1000
+                                'ram_asigned' : 1000,
+                                'debug' : False
                             }
                         }, write, indent= 5)
 
@@ -495,7 +521,8 @@ if __name__ == '__main__':
                         },
                         'launcher settings' : {
                             'close_on_start' : False,
-                            'ram_asigned' : 1000
+                            'ram_asigned' : 1000,
+                            'debug' : False
                         }
                     }, write, indent= 5)
 
@@ -530,7 +557,14 @@ if __name__ == '__main__':
 
                             if name.lower() == account[0].lower():
 
-                                self.ACCOUNTS_LIST.append(name + ' | No Premium')             
+                                self.ACCOUNTS_LIST.append(name + ' | No Premium') 
+
+                for account in config['accounts'].items(): 
+
+                    if account[1]['select'] and account[1]['type'] == 'no_premium':
+
+                        self.ACCOUNT_CURRENT = account[0] + ' | No Premium'
+                        break                            
 
             jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
@@ -774,6 +808,35 @@ if __name__ == '__main__':
                 
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El launcher se mantendra abierto cuando el juego se inicie.', type= 'ok', parent= HomeWindow)
             
+            def debug_mode() -> None:
+
+                self.DEBUG_MODE = DebugMode.get()
+
+                if self.DEBUG_MODE:
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                        
+                        config = json.load(read)
+                        config['launcher settings']['debug'] = True
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                        json.dump(config, write, indent= 5)    
+
+                    messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Ahora podrá ver el la consola al iniciar el juego.', type= 'ok', parent= HomeWindow)
+                    return
+                
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+                        
+                    config = json.load(read)
+                    config['launcher settings']['debug'] = False
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)    
+                
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'No se mostrará la consola al iniciar el juego.', type= 'ok', parent= HomeWindow)
+
             def accounts() -> None:
 
                 VersionsAndMods.configure(state= 'normal')
@@ -920,10 +983,15 @@ if __name__ == '__main__':
 
                                     if name.lower() == account[0].lower():
 
-                                        self.ACCOUNTS_LIST.append(name + ' | No Premium')      
+                                        self.ACCOUNTS_LIST.append(name + ' | No Premium')                     
 
-                        SelectAccount.configure(values = self.ACCOUNTS_LIST)   
-                        DeleteAccount.configure(values = self.ACCOUNTS_LIST)
+                    SelectAccount.configure(values = self.ACCOUNTS_LIST, state= 'normal')   
+                    DeleteAccount.configure(values = self.ACCOUNTS_LIST, state= 'normal')
+
+                    if len(self.ACCOUNTS_LIST) >= 1:
+
+                        SelectAccount.set(self.ACCOUNTS_LIST[0])
+                        DeleteAccount.set(self.ACCOUNTS_LIST[0])
 
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Cuenta guardada, ahora puede seleccionarla.', type= 'ok', parent= HomeWindow)
 
@@ -1178,6 +1246,7 @@ if __name__ == '__main__':
                 OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
                 OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
                 OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
+                DebugMode.place_configure(relx= 0.8_7, rely= 0.7_6, anchor= 'se')
                 JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
                 SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.4_5_9, anchor= 'center')
                 AssignMemory.place_configure(relx= 0.4_8, rely= 0.5_9, anchor= 'center')
@@ -1715,7 +1784,8 @@ if __name__ == '__main__':
                 width= 210,
                 fg_color= '#0077ff', 
                 button_color= '#0077ff',
-                values= self.VERSIONS_LIST
+                values= self.VERSIONS_LIST,
+                command= self.launch_minecraft
             )
             LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
 
@@ -1867,6 +1937,24 @@ if __name__ == '__main__':
             ) 
             OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
 
+            DebugMode : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
+                FrameDecorationCenter,
+                text= 'Debug',
+                text_color= '#70ceff',
+                bg_color= self.COLOR,
+                fg_color= '#0077ff',
+                font= ('JetBrains', 18),
+                onvalue= True,
+                offvalue= False,
+                button_color= 'white',
+                button_hover_color= 'white',
+                progress_color= '#70ceff',
+                height= 60,
+				width= 100,
+                command= debug_mode
+            ) 
+            DebugMode.place_configure(relx= 0.8_7, rely= 0.7_6, anchor= 'se')
+
             with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
                         
                 config = json.load(read)
@@ -1876,8 +1964,17 @@ if __name__ == '__main__':
                     OpenOrClose.select()
 
                 else:    
-                    OpenOrClose.deselect()    
-        
+                    OpenOrClose.deselect()   
+
+                if config['launcher settings']['debug'] == True:
+
+                    self.DEBUG_MODE = True
+                    DebugMode.select()
+
+                else:
+
+                    DebugMode.deselect()        
+      
             HomeWindow.mainloop()
 
             Logging().debug('Main Window terminated.')
