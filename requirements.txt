@@ -1,3 +1,4 @@
+pywebview
 psutil
 install-jdk
 minecraft-launcher-lib

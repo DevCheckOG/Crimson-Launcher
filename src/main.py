@@ -44,6 +44,7 @@ import minecraft_launcher_lib
 import psutil
 import jdk
 import customtkinter
+import webview
 import tkinter
 import signal
 import winotify
@@ -93,6 +94,28 @@ if __name__ == '__main__':
         Logging().critical(f'System not compatible.')
         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         sys.exit(0)                   
+
+    class RenderMinecraftNews:
+
+        def __init__(self, assets_path : str, master : customtkinter.CTkToplevel) -> None:
+
+            self.assets_path : str = assets_path
+            self.master : customtkinter.CTkToplevel = master
+
+        def render_news(self) -> None:
+
+            ...
+
+    class RenderLauncherNews:
+
+        def __init__(self, assets_path : str, master : customtkinter.CTkToplevel) -> None:
+
+            self.assets_path : str = assets_path
+            self.master : customtkinter.CTkToplevel = master
+
+        def render_news(self) -> None:
+
+            ...       
 
     class Download:
 
@@ -1601,7 +1624,48 @@ if __name__ == '__main__':
                 border_color= '#0077ff',
                 command= versions_and_mods
             )
-            VersionsAndMods.place_configure(relx= 0.2_5, rely= 0.1, anchor= 'n')
+            VersionsAndMods.place_configure(relx= 0.2_5, rely= 0.1_4, anchor= 'n')
+
+            MinecraftNews : customtkinter.CTkButton = customtkinter.CTkButton(
+                HomeWindow,
+                height= 40,
+                bg_color= self.COLOR,
+                fg_color= '#0077ff',
+                corner_radius= 20,
+                text= 'Noticias de Minecraft',
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/minecraft_news.png'), size= (22, 22)),
+                compound= 'left',
+                font= ('JetBrains', 15),
+                border_width= 2,
+                border_color= '#0077ff'
+            )
+            MinecraftNews.place_configure(relx= 0.2_5, rely= 0.0_4, anchor= 'n')
+
+            LauncherNews : customtkinter.CTkButton = customtkinter.CTkButton(
+                HomeWindow,
+                height= 40,
+                bg_color= self.COLOR,
+                fg_color= '#0077ff',
+                corner_radius= 20,
+                text= 'Noticias del Launcher',
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/launcher_news.png'), size= (22, 22)),
+                compound= 'left',
+                font= ('JetBrains', 15)
+            )
+            LauncherNews.place_configure(relx= 0.5, rely= 0.0_4, anchor= 'n')
+
+            About : customtkinter.CTkButton = customtkinter.CTkButton(
+                HomeWindow,
+                height= 40,
+                bg_color= self.COLOR,
+                fg_color= '#0077ff',
+                corner_radius= 20,
+                text= 'Sobre Crimson Launcher',
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/about.png'), size= (22, 22)),
+                compound= 'left',
+                font= ('JetBrains', 15)
+            )
+            About.place_configure(relx= 0.7_5, rely= 0.0_4, anchor= 'n')
 
             Launch : customtkinter.CTkButton = customtkinter.CTkButton(
                 HomeWindow,
@@ -1615,7 +1679,7 @@ if __name__ == '__main__':
                 font= ('JetBrains', 15),
                 command= launch
             )
-            Launch.place_configure(relx= 0.5, rely= 0.1, anchor= 'n')
+            Launch.place_configure(relx= 0.5, rely= 0.1_4, anchor= 'n')
 
             Launch.configure(state= 'disabled')
 
@@ -1631,7 +1695,7 @@ if __name__ == '__main__':
                 font= ('JetBrains', 15),
                 command= accounts
             )
-            Accounts.place_configure(relx= 0.7_5, rely= 0.1, anchor= 'n')
+            Accounts.place_configure(relx= 0.7_5, rely= 0.1_4, anchor= 'n')
 
             FrameDecorationCenter : customtkinter.CTkFrame = customtkinter.CTkFrame(
                 HomeWindow,
