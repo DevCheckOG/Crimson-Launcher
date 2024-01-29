@@ -414,13 +414,13 @@ if __name__ == '__main__':
 
             self.checker()
 
-        def launch_minecraft(self, version : str) -> None:
+        def launch_minecraft(self, version : str, master : customtkinter.CTkToplevel) -> None:
 
             ACCOUNT : str = self.ACCOUNT_CURRENT
 
             if ACCOUNT.find(' | No Premium') != -1:
 
-                options : dict[str, Any] = {
+                options : minecraft_launcher_lib.types.MinecraftOptions = {
 
                     'username': ACCOUNT.replace(' | No Premium', ''),
                     'uuid': uuid.uuid4().hex,
@@ -431,15 +431,59 @@ if __name__ == '__main__':
                 }
 
                 options['jvmArguments'] = [f'-Xmx{self.RAM_ASSIGNED}M', '-Xms128M']
-                options['executablePath'] = self.JAVA_CURRENT        
+
+                if self.JAVA_CURRENT.find('/') == -1: options['executablePath'] = self.JAVA_CURRENT    
+
+                else: options['executablePath'] = f'"{self.JAVA_CURRENT}"'       
 
                 Logging().info(f'Account: {ACCOUNT.replace(' | No Premium', '')}')
                 Logging().info(f'Options: {options}')
                 Logging().info(f'Launching Minecraft {version}...')
 
+                COMMAND : str = ''
+
+                for arg in minecraft_launcher_lib.command.get_minecraft_command(version, self.PATH, options):
+
+                    COMMAND += f' {arg}'
+
                 if self.DEBUG_MODE:
                         
-                    subprocess.run(['start'] + [z.replace('\\', '/') for z in minecraft_launcher_lib.command.get_minecraft_command(version, self.PATH, options)], stdout= subprocess.PIPE, stderr= subprocess.PIPE)
+                    subprocess.call(f'start /i cmd /k {COMMAND}', shell= True, stdout= subprocess.PIPE, stderr= subprocess.PIPE, stdin= subprocess.PIPE, text= True) 
+                    
+                    if self.OPEN_OR_CLOSE:
+
+                        self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.hidden_and_show_home_window, master)
+
+                    return
+
+                subprocess.call(f'start /b cmd /k {COMMAND}', shell= True, stdout= subprocess.PIPE, stderr= subprocess.PIPE, stdin= subprocess.PIPE, text= True)
+
+                if self.OPEN_OR_CLOSE:
+
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.hidden_and_show_home_window, master)
+
+                return  
+
+        def hidden_and_show_home_window(self, master : customtkinter.CTkToplevel) -> None:
+            
+            master.withdraw()
+
+            time.sleep(10)
+
+            while True:
+
+                time.sleep(5)
+
+                IS_JAVA_RUNNING : bool = False
+
+                for proc in psutil.process_iter(['name']):
+                    if proc.name() == 'java.exe':
+                        IS_JAVA_RUNNING = True
+
+                if IS_JAVA_RUNNING: continue
+                else: break    
+
+            master.deiconify()        
 
         def java(self, version : Literal['17', '8']) -> None:
 
@@ -1591,7 +1635,11 @@ if __name__ == '__main__':
 
             def launcher_news() -> None:
 
-                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)           
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)  
+
+            def start_minecraft_version(version : str) -> None:
+
+                self.launch_minecraft(version, HomeWindow)
 
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
@@ -1785,7 +1833,7 @@ if __name__ == '__main__':
                 fg_color= '#0077ff', 
                 button_color= '#0077ff',
                 values= self.VERSIONS_LIST,
-                command= self.launch_minecraft
+                command= start_minecraft_version
             )
             LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
 
