@@ -40,6 +40,8 @@ class constants(Enum):
     DISCORD : str = 'https://discord.com/invite/DWfuQRsxwb'
     GITHUB : str = 'https://github.com/DevCheckOG/Crimson-Project'
     PAYPAL : str = 'https://paypal.me/DevCheck'
+    MINECRAFT_NEWS : str = 'https://www.minecraft.net/es-es/articles'
+    LAUNCHER_NEWS : str = '...'
 
     FABRICMC : str = 'https://fabricmc.net/'
     QUILT : str = 'https://quiltmc.org/'

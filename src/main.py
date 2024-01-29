@@ -44,7 +44,6 @@ import minecraft_launcher_lib
 import psutil
 import jdk
 import customtkinter
-import webview
 import tkinter
 import signal
 import winotify
@@ -94,38 +93,6 @@ if __name__ == '__main__':
         Logging().critical(f'System not compatible.')
         messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Sistema operativo incompatible.', type= 'ok')
         sys.exit(0)                   
-
-    class RenderMinecraftNews:
-
-        def __init__(self, button : customtkinter.CTkButton) -> None:
-            
-            self.button : customtkinter.CTkButton = button
-            self.render_news()
-
-        def render_news(self) -> None:
-
-            self.button.configure(state= 'disabled')
-
-            webview.create_window('Noticias de Minecraft', url= 'https://www.minecraft.net/es-es/articles', width= 1000, height= 800, minimized= False)
-            webview.start()
-
-            self.button.configure(state= 'normal')
-
-    class RenderLauncherNews:
-
-        def __init__(self, button : customtkinter.CTkButton) -> None:
-            
-            self.button : customtkinter.CTkButton = button
-            self.render_news()
-
-        def render_news(self) -> None:
-
-            self.button.configure(state= 'disabled')  
-
-            webview.create_window('Noticias de Minecraft', url= '...', width= 1000, height= 800, minimized= False)
-            webview.start()  
-
-            self.button.configure(state= 'normal')   
 
     class Download:
 
@@ -368,14 +335,6 @@ if __name__ == '__main__':
 
         Download(os, path, software, version, parent, frame_center, assets_path, download_status, download_version)     
 
-    def StartMinecraftNews(button : customtkinter.CTkButton) -> None:
-
-        RenderMinecraftNews(button)   
-
-    def StartLauncherNews(button : customtkinter.CTkButton) -> None:
-
-        RenderLauncherNews(button)    
-
     class NotifierWindows:
 
         def __init__(self, ASSETS_PATH : str, TITLE : str, MSG : str) -> None:
@@ -403,8 +362,6 @@ if __name__ == '__main__':
             notification.show()
 
             Logging().debug(f'Notification send.')
-
-            return
 
     class CrimsonLauncher:
 
@@ -745,17 +702,14 @@ if __name__ == '__main__':
             def discord() -> None:
 
                 webbrowser.open_new_tab(constants.DISCORD.value)
-                return
 
             def github() -> None:
 
                 webbrowser.open_new_tab(constants.GITHUB.value)   
-                return
 
             def paypal() -> None:
 
                 webbrowser.open_new_tab(constants.PAYPAL.value)  
-                return
             
             def select_java_version(version : str) -> None:
 
@@ -773,7 +727,6 @@ if __name__ == '__main__':
                 self.JAVA_CURRENT = version    
 
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'{version} ahora es el Java seleccionado.', type= 'ok', parent= HomeWindow)
-                return        
             
             def assign_ram(value : int) -> None:
 
@@ -790,8 +743,7 @@ if __name__ == '__main__':
 
                 self.RAM_ASSIGNED = round(value)        
 
-                AssignedMemoryTitle.configure(text= f'Memoria asignada: {round(self.RAM_ASSIGNED)} MB')    
-                return
+                AssignedMemoryTitle.configure(text= f'Memoria asignada: {round(self.RAM_ASSIGNED)} MB')   
             
             def open_or_close() -> None:
 
@@ -821,7 +773,6 @@ if __name__ == '__main__':
                     json.dump(config, write, indent= 5)    
                 
                 messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'El launcher se mantendra abierto cuando el juego se inicie.', type= 'ok', parent= HomeWindow)
-                return
             
             def accounts() -> None:
 
@@ -832,7 +783,6 @@ if __name__ == '__main__':
                 def premium() -> None:
                     
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)
-                    return
                 
                 def select_account(account : str) -> None:
 
@@ -863,7 +813,6 @@ if __name__ == '__main__':
                             json.dump(config, write, indent= 5)
 
                         messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Cuenta seleccionada: {self.ACCOUNT_CURRENT}', type= 'ok', parent= HomeWindow)    
-                        return
 
                     #Lógica para las cuentas premium...  
 
@@ -906,7 +855,6 @@ if __name__ == '__main__':
                         DeleteAccount.set(self.ACCOUNTS_LIST[0])
 
                         messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Cuenta eliminada: {ACCOUNT}', type= 'ok', parent= HomeWindow)
-                        return    
 
                 def no_premium() -> None:
 
@@ -978,7 +926,6 @@ if __name__ == '__main__':
                         DeleteAccount.configure(values = self.ACCOUNTS_LIST)
 
                     messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Cuenta guardada, ahora puede seleccionarla.', type= 'ok', parent= HomeWindow)
-                    return
 
                 for name in FrameDecorationCenter.children.items():
 
@@ -1298,12 +1245,10 @@ if __name__ == '__main__':
                 def fabricmc() -> None:
 
                     webbrowser.open_new_tab(constants.FABRICMC.value)
-                    return
                 
                 def quilt() -> None:
 
                     webbrowser.open_new_tab(constants.QUILT.value)
-                    return
                 
                 def download_specific_version_vanilla(version : str) -> None:
 
@@ -1571,6 +1516,14 @@ if __name__ == '__main__':
                             name[1].configure(state= 'disabled')
                             continue
 
+            def minecraft_news() -> None:
+
+                webbrowser.open_new_tab(constants.MINECRAFT_NEWS.value)
+
+            def launcher_news() -> None:
+
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Proximamente estará disponible.', type= 'ok', parent= HomeWindow)           
+
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
@@ -1655,7 +1608,8 @@ if __name__ == '__main__':
                 compound= 'left',
                 font= ('JetBrains', 15),
                 border_width= 2,
-                border_color= '#0077ff'
+                border_color= '#0077ff',
+                command= minecraft_news
             )
             MinecraftNews.place_configure(relx= 0.2_5, rely= 0.0_4, anchor= 'n')
 
@@ -1668,7 +1622,8 @@ if __name__ == '__main__':
                 text= 'Noticias del Launcher',
                 image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/launcher_news.png'), size= (22, 22)),
                 compound= 'left',
-                font= ('JetBrains', 15)
+                font= ('JetBrains', 15),
+                command= launcher_news
             )
             LauncherNews.place_configure(relx= 0.5, rely= 0.0_4, anchor= 'n')
 
