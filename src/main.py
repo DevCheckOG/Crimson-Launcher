@@ -393,6 +393,8 @@ if __name__ == '__main__':
             self.ACCOUNTS_LIST : List[str] = []
             self.ACCOUNT_CURRENT : str = ''
             self.DEBUG_MODE : bool = True
+            self.DEFAULT_JAVA_ARGS : List[str] = [f'-Xmx%memory_assigned%M', '-Xms128M']
+            self.CURRENT_JAVA_ARGS : List[str] = []
 
             Logging().debug(f'All variables initialized.')
 
@@ -452,7 +454,7 @@ if __name__ == '__main__':
                     
                     if self.OPEN_OR_CLOSE:
 
-                        self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.hidden_and_show_home_window, master)
+                        self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.checker_java_running, master)
 
                     return
 
@@ -460,11 +462,11 @@ if __name__ == '__main__':
 
                 if self.OPEN_OR_CLOSE:
 
-                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.hidden_and_show_home_window, master)
+                    self.CRIMSON_BACKGROUND_THREAD_POOL.submit(self.checker_java_running, master)
 
                 return  
 
-        def hidden_and_show_home_window(self, master : customtkinter.CTkToplevel) -> None:
+        def checker_java_running(self, master : customtkinter.CTkToplevel) -> None:
             
             master.withdraw()
 
@@ -526,6 +528,7 @@ if __name__ == '__main__':
                             'accounts' : {},
                             'java' : {
                                 'path' : None,
+                                'args' : None
                             },
                             'launcher settings' : {
                                 'close_on_start' : False,
@@ -562,6 +565,7 @@ if __name__ == '__main__':
                         'accounts' : {},
                         'java' : {
                             'path' : None,
+                            'args' : None
                         },
                         'launcher settings' : {
                             'close_on_start' : False,
@@ -608,7 +612,44 @@ if __name__ == '__main__':
                     if account[1]['select'] and account[1]['type'] == 'no_premium':
 
                         self.ACCOUNT_CURRENT = account[0] + ' | No Premium'
-                        break                            
+                        break   
+
+                if config['java']['args'] is None:
+
+                    self.CURRENT_JAVA_ARGS = [string.replace('%memory_assigned%', str(self.RAM_ASSIGNED)) for string in self.DEFAULT_JAVA_ARGS]  
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                        config = json.load(read)
+
+                        config['java']['args'] = self.DEFAULT_JAVA_ARGS
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                        json.dump(config, write, indent= 5)    
+
+                elif config['java']['args'] is not None:
+
+                    with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                        config = json.load(read)
+
+                        HAVE_PLACEHOLDER : bool = False
+
+                        for string in config['java']['args']:
+
+                            if string.find('%memory_assigned%') != -1:
+                                
+                                HAVE_PLACEHOLDER = True
+                                break
+
+                        if HAVE_PLACEHOLDER != True:
+
+                            Logging().error('Placeholder of %memory_assigned% not found. Please add it in Java args. (Config File)')
+                            messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Placeholder de %memory_assigned% no encontrado. Por favor agrega el placeholder en los argumentos de java. (Archivo de Configuración)', type= 'ok')
+                            self.terminate()
+
+                        self.CURRENT_JAVA_ARGS = [string.replace('%memory_assigned%', str(self.RAM_ASSIGNED)) for string in config['java']['args']]                                     
 
             jdks : List[str] = [java for java in os.listdir(self.PATH + 'Java/') if java.startswith('jdk-17') or java.startswith('jdk-8')]
 
@@ -1287,15 +1328,16 @@ if __name__ == '__main__':
 
                 LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')  
                 LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
-                OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
-                OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
-                OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
-                DebugMode.place_configure(relx= 0.8_7, rely= 0.7_6, anchor= 'se')
+                SettingsTitle.place_configure(relx= 0.9, rely= 0.2_7, anchor= 'se')
+                OpenOrClose.place_configure(relx= 0.9_2, rely= 0.4_4, anchor= 'se')
+                DebugMode.place_configure(relx= 0.8_7, rely= 0.6_0, anchor= 'se')
                 JavaTitle.place_configure(relx= 0.4_8, rely= 0.1_7, anchor= 'center')
-                SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.4_5_9, anchor= 'center')
-                AssignMemory.place_configure(relx= 0.4_8, rely= 0.5_9, anchor= 'center')
-                AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_0, anchor= 'center')
-                TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_5, anchor= 'center')
+                SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.3_8, anchor= 'center')
+                AssignMemory.place_configure(relx= 0.4_8, rely= 0.5, anchor= 'center')
+                AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.6_0, anchor= 'center')
+                TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.6_5, anchor= 'center')
+                EntryJavaArgs.place_configure(relx= 0.4_8, rely= 0.7_7, anchor= 'center')
+                ApplyJavaArgs.place_configure(relx= 0.4_8, rely= 0.9, anchor= 'center')
 
                 # Versions
 
@@ -1641,6 +1683,47 @@ if __name__ == '__main__':
 
                 self.launch_minecraft(version, HomeWindow)
 
+            def apply_java_args() -> None:
+
+                Args = EntryJavaArgs.get()    
+
+                HAVE_PLACEHOLDER : bool = False
+
+                for string in Args.split(' '):
+
+                    if string.find('%memory_assigned%') != -1:
+
+                        HAVE_PLACEHOLDER = True
+                        break
+
+                    else:
+
+                        continue
+
+                if HAVE_PLACEHOLDER != True:
+
+                    messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Es obligatorio utilizar el placeholder %memory_assigned%.', type= 'ok', parent= HomeWindow)
+                    return    
+                
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                    config = json.load(read)
+                    
+                    config['java']['args'] = Args.split(' ')
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'w') as write:
+
+                    json.dump(config, write, indent= 5)
+
+                self.CURRENT_JAVA_ARGS = [string.replace('%memory_assigned%', str(self.RAM_ASSIGNED)) for string in Args.split(' ')]     
+                messagebox.showinfo(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Los argumentos de java han sido actualizados.', type= 'ok', parent= HomeWindow) 
+
+                with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                    config = json.load(read)
+
+                    EntryJavaArgs.insert('end', ' '.join(config['java']['args']))  
+
             HomeWindow : customtkinter.CTkToplevel = customtkinter.CTkToplevel()
             HomeWindow.title(f'Crimson Launcher - {constants.VERSION.value}')
             HomeWindow.config(bg= self.COLOR)
@@ -1892,7 +1975,7 @@ if __name__ == '__main__':
                 values= self.JAVA_LIST,
                 command= select_java_version
             )
-            SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.4_5_9, anchor= 'center')
+            SelectJavaVersion.place_configure(relx= 0.4_8, rely= 0.3_8, anchor= 'center')
 
             if self.JAVA_CURRENT != '':
                 SelectJavaVersion.set(self.JAVA_CURRENT)
@@ -1914,7 +1997,7 @@ if __name__ == '__main__':
                 progress_color= '#0077ff',
                 command= assign_ram
             )    
-            AssignMemory.place_configure(relx= 0.4_8, rely= 0.5_9, anchor= 'center')
+            AssignMemory.place_configure(relx= 0.4_8, rely= 0.5, anchor= 'center')
             AssignMemory.set(self.RAM_ASSIGNED)
 
             AssignedMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
@@ -1925,7 +2008,7 @@ if __name__ == '__main__':
                 bg_color= self.COLOR,
                 fg_color= self.COLOR
             )
-            AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_0, anchor= 'center')
+            AssignedMemoryTitle.place_configure(relx= 0.4_8, rely= 0.6_0, anchor= 'center')
 
             TotalMemoryTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
                 FrameDecorationCenter,
@@ -1935,37 +2018,53 @@ if __name__ == '__main__':
                 bg_color= self.COLOR,
                 fg_color= self.COLOR
             )
-            TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.7_5, anchor= 'center')
+            TotalMemoryTitle.place_configure(relx= 0.4_8, rely= 0.6_5, anchor= 'center')
 
-            OptimizationTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+            EntryJavaArgs : customtkinter.CTkEntry = customtkinter.CTkEntry(
                 FrameDecorationCenter,
-                text= ' Optimización',
+                placeholder_text= ' '.join(self.DEFAULT_JAVA_ARGS),
+                placeholder_text_color= 'white',
+                text_color= 'white',
+                font=('JetBrains', 15),
+                width= 210,
+                height= 40,
+                corner_radius= 20,
+                bg_color= self.COLOR,
+                fg_color= self.COLOR
+            )
+            EntryJavaArgs.place_configure(relx= 0.4_8, rely= 0.7_7, anchor= 'center')
+
+            with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
+
+                config = json.load(read)
+                EntryJavaArgs.insert('end', ' '.join(config['java']['args'])) 
+
+            ApplyJavaArgs : customtkinter.CTkButton = customtkinter.CTkButton(
+                FrameDecorationCenter,
+                height= 40,
+                bg_color= self.COLOR,
+                fg_color= '#0077ff',
+                corner_radius= 20,
+                text= 'Aplicar',
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/apply.png'), size= (22, 22)),
+                compound= 'left',
+                font= ('JetBrains', 15),
+                command= apply_java_args
+            )
+            ApplyJavaArgs.place_configure(relx= 0.4_8, rely= 0.9, anchor= 'center')
+
+            SettingsTitle : customtkinter.CTkLabel = customtkinter.CTkLabel(
+                FrameDecorationCenter,
+                text= ' Ajustes',
                 compound= 'left',
                 font= ('JetBrains', 30),
                 text_color= '#70ceff',
                 bg_color= self.COLOR,
                 fg_color= self.COLOR,
-                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/optimize.png'), size= (96, 96))
+                image= customtkinter.CTkImage(light_image= Image.open(f'{self.ASSETS_PATH}/settings.png'), size= (96, 96))
 
             )
-            OptimizationTitle.place_configure(relx= 0.9_5, rely= 0.2_7, anchor= 'se')
-
-            OptimizeJavaArgs : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
-                FrameDecorationCenter,
-                text= ' Optimizar Java',
-                text_color= '#70ceff',
-                bg_color= self.COLOR,
-                fg_color= '#0077ff',
-                font= ('JetBrains', 18),
-                onvalue= True,
-                offvalue= False,
-                button_color= 'white',
-                button_hover_color= 'white',
-                progress_color= '#70ceff',
-                height= 60,
-				width= 100
-            ) 
-            OptimizeJavaArgs.place_configure(relx= 0.9, rely= 0.4_4, anchor= 'se')
+            SettingsTitle.place_configure(relx= 0.9, rely= 0.2_7, anchor= 'se')
 
             OpenOrClose : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
                 FrameDecorationCenter,
@@ -1983,7 +2082,7 @@ if __name__ == '__main__':
 				width= 100,
                 command= open_or_close
             ) 
-            OpenOrClose.place_configure(relx= 0.9_2, rely= 0.6_0, anchor= 'se')
+            OpenOrClose.place_configure(relx= 0.9_2, rely= 0.4_4, anchor= 'se')
 
             DebugMode : customtkinter.CTkSwitch = customtkinter.CTkSwitch(
                 FrameDecorationCenter,
@@ -2001,7 +2100,7 @@ if __name__ == '__main__':
 				width= 100,
                 command= debug_mode
             ) 
-            DebugMode.place_configure(relx= 0.8_7, rely= 0.7_6, anchor= 'se')
+            DebugMode.place_configure(relx= 0.8_7, rely= 0.6_0, anchor= 'se')
 
             with open(self.PATH + 'Crimson Settings/config.json', 'r') as read:
                         
