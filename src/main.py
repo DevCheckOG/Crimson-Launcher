@@ -420,7 +420,29 @@ if __name__ == '__main__':
 
         def launch_minecraft(self, version : str, master : customtkinter.CTkToplevel) -> None:
 
+            def check_java_args(java_path : str, java_args : List[str]) -> bool:
+
+                terminal : subprocess.Popen[str] = subprocess.Popen(f'{java_path} {' '.join(java_args)}', shell= True, stdin= subprocess.PIPE, stdout= subprocess.PIPE, stderr= subprocess.PIPE, text= True)
+
+                output, error = terminal.communicate(timeout= 60)
+
+                if len(error) != 0:
+
+                    if len(error) >= 600: 
+
+                        return True
+
+                    Logging().error(f'POTENTIAL ERROR: \n\n{error}\n')
+                    messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'Error al iniciar la JVM: \n{error}\n', type= 'ok', parent= master)
+                    return False
+
+                if len(output) != 0:
+
+                    Logging().debug(f'POTENTIAL OUTPUT: \n\n{output}\n')
+                    return True
+                
             ACCOUNT : str = self.ACCOUNT_CURRENT
+            JAVA_TEMP_PATH : str = ''
 
             if ACCOUNT.find(' | No Premium') != -1:
 
@@ -442,12 +464,36 @@ if __name__ == '__main__':
 
                 options['jvmArguments'] = self.CURRENT_JAVA_ARGS
 
-                if self.JAVA_CURRENT.find('/') == -1: options['executablePath'] = self.JAVA_CURRENT    
+                if self.JAVA_CURRENT.find('/') == -1: 
+                    
+                    options['executablePath'] = self.JAVA_CURRENT   
+                    JAVA_TEMP_PATH = self.JAVA_CURRENT 
 
-                else: options['executablePath'] = f'"{self.JAVA_CURRENT}"'       
+                else: 
 
-                Logging().info(f'Account: {ACCOUNT.replace(' | No Premium', '')}')
-                Logging().info(f'Options: {options}')
+                    options['executablePath'] = f'"{self.JAVA_CURRENT}"' 
+                    JAVA_TEMP_PATH = f'"{self.JAVA_CURRENT}"'     
+
+                Logging().info(f'JAVA: {JAVA_TEMP_PATH}')  
+
+                Logging().info(f'Testing Java arguments for the JVM: {' '.join(self.CURRENT_JAVA_ARGS)}') 
+
+                Logging().info(f'Initializing test...')
+
+                check_args : bool = check_java_args(JAVA_TEMP_PATH, self.CURRENT_JAVA_ARGS)
+
+                if check_args:
+
+                    Logging().info(f'Java test completed successfully.')
+
+                else:
+
+                    Logging().warning(f'Java test failed.')
+                    Logging().warning(f'Check the console for potential errors.')
+                    return
+
+                Logging().info(f'Minecraft Account: {ACCOUNT}')
+                Logging().info(f'Minecraft Options: {options}')
                 Logging().info(f'Launching Minecraft {version}...')
 
                 COMMAND : str = ''
@@ -492,7 +538,8 @@ if __name__ == '__main__':
 
                 if IS_JAVA_RUNNING: continue
                 else: break    
-
+            
+            Logging().info(f'Minecraft has ended.')
             master.deiconify()        
 
         def java(self, version : Literal['17', '8']) -> None:
