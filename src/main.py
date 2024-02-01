@@ -368,6 +368,8 @@ if __name__ == '__main__':
 
         def __init__(self, user : str) -> None:
 
+            if user == '': self.terminate()
+
             Logging().debug(f'User: {user}')
             Logging().debug(f'Starting the Crimson Launcher...')
 
@@ -432,7 +434,13 @@ if __name__ == '__main__':
 
                 }
 
-                options['jvmArguments'] = [f'-Xmx{self.RAM_ASSIGNED}M', '-Xms128M']
+                if len(self.CURRENT_JAVA_ARGS) < 2:
+
+                    messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Se necesitan al menos dos argumentos para iniciar la JVM.', type= 'ok', parent= master)
+                    Logging().error('Not enough arguments for the JVM.')
+                    return
+
+                options['jvmArguments'] = self.CURRENT_JAVA_ARGS
 
                 if self.JAVA_CURRENT.find('/') == -1: options['executablePath'] = self.JAVA_CURRENT    
 
@@ -1087,27 +1095,27 @@ if __name__ == '__main__':
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkLabel):
+                    elif isinstance(name[1], customtkinter.CTkLabel):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkSwitch):
+                    elif isinstance(name[1], customtkinter.CTkSwitch):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+                    elif isinstance(name[1], customtkinter.CTkOptionMenu):
 
                         name[1].place_forget()
                         continue   
 
-                    if isinstance(name[1], customtkinter.CTkSlider):
+                    elif isinstance(name[1], customtkinter.CTkSlider):
 
                         name[1].place_forget()
                         continue    
 
-                    if isinstance(name[1], customtkinter.CTkEntry):
+                    elif isinstance(name[1], customtkinter.CTkEntry):
 
                         name[1].place_forget()
                         continue
@@ -1301,33 +1309,33 @@ if __name__ == '__main__':
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkLabel):
+                    elif isinstance(name[1], customtkinter.CTkLabel):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkSwitch):
+                    elif isinstance(name[1], customtkinter.CTkSwitch):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+                    elif isinstance(name[1], customtkinter.CTkOptionMenu):
 
                         name[1].place_forget()
                         continue   
 
-                    if isinstance(name[1], customtkinter.CTkSlider):
+                    elif isinstance(name[1], customtkinter.CTkSlider):
 
                         name[1].place_forget()
                         continue    
 
-                    if isinstance(name[1], customtkinter.CTkEntry):
+                    elif isinstance(name[1], customtkinter.CTkEntry):
 
                         name[1].place_forget()
                         continue
 
                 LaunchTitle.place_configure(relx= 0.0_4, rely= 0.2_7, anchor= 'sw')  
-                LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
+                LaunchVersion.place_configure(relx= 0.0_5, rely= 0.4_2_6, anchor= 'sw')
                 SettingsTitle.place_configure(relx= 0.9, rely= 0.2_7, anchor= 'se')
                 OpenOrClose.place_configure(relx= 0.9_2, rely= 0.4_4, anchor= 'se')
                 DebugMode.place_configure(relx= 0.8_7, rely= 0.6_0, anchor= 'se')
@@ -1343,13 +1351,13 @@ if __name__ == '__main__':
 
                 self.VERSIONS_LIST.clear()
 
-                if not os.path.exists(self.PATH + 'versions/') or not len(os.listdir(self.PATH + 'versions/')) == 0 and len(self.VERSIONS_LIST) == 1:
+                if not os.path.exists(self.PATH + 'versions/') or len(os.listdir(self.PATH + 'versions/')) == 0 and len(self.VERSIONS_LIST) == 1:
                     
                     self.VERSIONS_LIST.insert(0, 'No hay versiones instaladas.')
 
                 else:
 
-                    for name in os.listdir(self.PATH + 'versions/'):
+                    for name in [version for version in os.listdir(self.PATH + 'versions/') if os.path.isdir(self.PATH + 'versions/' + version)]:
 
                         self.VERSIONS_LIST.append(name)  
 
@@ -1428,27 +1436,27 @@ if __name__ == '__main__':
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkLabel):
+                    elif isinstance(name[1], customtkinter.CTkLabel):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkSwitch):
+                    elif isinstance(name[1], customtkinter.CTkSwitch):
 
                         name[1].place_forget()
                         continue
 
-                    if isinstance(name[1], customtkinter.CTkOptionMenu):
+                    elif isinstance(name[1], customtkinter.CTkOptionMenu):
 
                         name[1].place_forget()
                         continue   
 
-                    if isinstance(name[1], customtkinter.CTkSlider):
+                    elif isinstance(name[1], customtkinter.CTkSlider):
 
                         name[1].place_forget()
                         continue    
 
-                    if isinstance(name[1], customtkinter.CTkEntry):
+                    elif isinstance(name[1], customtkinter.CTkEntry):
 
                         name[1].place_forget()
                         continue
@@ -1874,9 +1882,7 @@ if __name__ == '__main__':
                 HomeWindow,
                 corner_radius= 20,
                 bg_color= self.COLOR,
-                fg_color= self.COLOR,
-                border_color= '#0077ff',
-                border_width= 2
+                fg_color= self.COLOR
             )
             FrameDecorationCenter.place_configure(relx= 0.09, rely= 0.9_1, anchor= 'sw', relheight= 0.6_3, relwidth= 0.7_2)
 
@@ -1897,7 +1903,7 @@ if __name__ == '__main__':
 
             else:
 
-                for name in os.listdir(self.PATH + 'versions/'):
+                for name in [version for version in os.listdir(self.PATH + 'versions/') if os.path.isdir(self.PATH + 'versions/' + version)]:
 
                     self.VERSIONS_LIST.append(name)    
 
@@ -1918,7 +1924,7 @@ if __name__ == '__main__':
                 values= self.VERSIONS_LIST,
                 command= start_minecraft_version
             )
-            LaunchVersion.place_configure(relx= 0.0_5, rely= 0.5_0, anchor= 'sw')
+            LaunchVersion.place_configure(relx= 0.0_5, rely= 0.4_2_6, anchor= 'sw')
 
             if self.VERSIONS_LIST[0] == 'No hay versiones instaladas.':
 
@@ -2120,7 +2126,7 @@ if __name__ == '__main__':
 
                 else:
 
-                    DebugMode.deselect()        
+                    DebugMode.deselect()            
       
             HomeWindow.mainloop()
 
@@ -2140,10 +2146,13 @@ if __name__ == '__main__':
         USERS_PATH : str = 'C:/Users'
 
         if not os.path.exists(USERS_PATH):
+
             messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= f'No existe la carpeta {USERS_PATH} del sistema.', type= 'ok')
-            raise RuntimeError(f'No existe la carpeta {USERS_PATH} del sistema.')
+            Logging().error(f'No exists {USERS_PATH} folder.')
+
+            return USER
         
-        for user in [username for username in os.listdir('C:/Users') if username.find('.') == -1 and username == 'ingke' or username == getpass.getuser() or username == getpass.getuser().lower()]:
+        for user in [username for username in os.listdir('C:/Users') if os.path.isdir(f'C:/Users/{username}') and username == 'ingke' or username == getpass.getuser() or username == getpass.getuser().lower()]:
 
             if os.path.exists(f'C:/Users/{user}/AppData/Roaming/'):
                 USER = user
