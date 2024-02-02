@@ -1,3 +1,6 @@
+build
+dist
+main.spec
 src/__pycache__
 src/.mypy_cache
 .venv
