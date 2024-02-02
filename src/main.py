@@ -370,6 +370,8 @@ if __name__ == '__main__':
 
             if user == '': self.terminate()
 
+            Logging().debug('\n\n¡Welcome to Crimson Launcher!\n')
+
             Logging().debug(f'User: {user}')
             Logging().debug(f'Starting the Crimson Launcher...')
 
@@ -539,8 +541,12 @@ if __name__ == '__main__':
                 if IS_JAVA_RUNNING: continue
                 else: break    
             
-            Logging().info(f'Minecraft has ended.')
-            master.deiconify()        
+            Logging().info('Minecraft has ended.')
+            Logging().info('Showing main window...')
+
+            master.deiconify()  
+            
+            Logging().debug('Checker Java Running terminated and main window shown.')      
 
         def java(self, version : Literal['17', '8']) -> None:
 
@@ -2206,8 +2212,6 @@ if __name__ == '__main__':
                 break
 
         return USER
-    
-    Logging().debug('Starting the Crimson Launcher...')
 
     CrimsonLauncher(get_user())
     
