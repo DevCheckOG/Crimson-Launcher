@@ -94,6 +94,7 @@ if __name__ == '__main__':
     def handle_uncaught_exception(type : type[BaseException], value : BaseException, traceback : TracebackType | None) -> None:    
 
         Logging().error('\n\nFATAL ERROR\n')
+        messagebox.showerror(title= f'Crimson Launcher - {constants.VERSION.value}', message= 'Se ha producido un error inesperado, revise la consola.', type= 'ok')
         Logging().critical(f'Exception Type: {type}')
         Logging().critical(f'Exception Value: {value}')
 
