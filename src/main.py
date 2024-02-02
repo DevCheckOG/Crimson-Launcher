@@ -37,6 +37,7 @@ import platform
 import re
 import shutil
 import sys
+from types import TracebackType
 from typing import Any, List, Literal, Dict
 import uuid
 import webbrowser
@@ -89,6 +90,26 @@ if __name__ == '__main__':
         def critical(self, msg : str) -> None:
 
             LOGGER.critical(msg)   
+
+    def handle_uncaught_exception(type : type[BaseException], value : BaseException, traceback : TracebackType | None) -> None:    
+
+        Logging().error('\n\nFATAL ERROR\n')
+        Logging().critical(f'Exception Type: {type}')
+        Logging().critical(f'Exception Value: {value}')
+
+        if traceback is not None:
+
+            Logging().critical(f'Traceback: {traceback}')
+
+        Logging().critical('\n\nThis could be a issue, please notify the developer.\n')
+        Logging().warning('While loop initialized.')
+        Logging().warning('Please restart the program.')
+
+        while True:
+
+            ...    
+
+    sys.excepthook = handle_uncaught_exception           
 
     if not platform.platform().startswith('Windows'):
         Logging().critical(f'System not compatible.')
