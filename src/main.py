@@ -887,7 +887,7 @@ if __name__ == '__main__':
             StartWindowLoadBar.place_configure(relx= 0.2_5, rely= 0.8)
             StartWindowLoadBar.start()
 
-            StartWindow.after(300, terminate_start_window)
+            StartWindow.after(9000, terminate_start_window)
             StartWindow.mainloop()
 
             Logging().debug('Start window terminated.')
