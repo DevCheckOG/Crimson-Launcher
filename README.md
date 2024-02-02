@@ -2,6 +2,11 @@
 
 # Crimson Launcher
 
+# ¿Qué es Crimson Launcher?
+
+> [!NOTE]  
+> **Crimson Launcher es un launcher de Minecraft escrito enteramente en Python además de ser inspirado en TLauncher. El mismo tratará de ofrecer las mismas características con algunas adicciones más.**
+
 > [!NOTE]  
 > **Este repositorio pertenece a los desarrolladores de Crimson Launcher.**
 
