@@ -443,6 +443,8 @@ if __name__ == '__main__':
                     Logging().debug(f'POTENTIAL OUTPUT: \n\n{output}\n')
                     return True
                 
+                return False
+                
             ACCOUNT : str = self.ACCOUNT_CURRENT
             JAVA_TEMP_PATH : str = ''
 
@@ -545,7 +547,7 @@ if __name__ == '__main__':
             Logging().info('Showing main window...')
 
             master.deiconify()  
-            
+
             Logging().debug('Checker Java Running terminated and main window shown.')      
 
         def java(self, version : Literal['17', '8']) -> None:
