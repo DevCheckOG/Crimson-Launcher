@@ -1,7 +1,8 @@
 .vscode
 build
 dist
-main.spec
+CrimsonLauncher-dev.spec
+CrimsonLauncher.spec
 src/__pycache__
 src/.mypy_cache
 .venv
