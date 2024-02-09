@@ -72,4 +72,4 @@
 
 ### Donaciones / Contribuir 💵
 
-- **DevCheckOG:** [paypal](https://www.paypal.com/paypalme/DevCheck)
+- **DevCheckOG:** [Paypal](https://www.paypal.com/paypalme/DevCheck)
