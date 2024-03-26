@@ -1,4 +1,4 @@
-<img alt="Logo" src="https://github.com/DevCheckOG/Crimson-Project/blob/main/assets/logo.png">
+<img alt="Logo" src="https://github.com/DevCheckOG/Crimson-Launcher/blob/master/assets/logo.png">
 
 # Crimson Launcher
 
