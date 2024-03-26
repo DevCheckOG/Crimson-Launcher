@@ -10,7 +10,7 @@
 
 > **Menú Principal**
 
-<img src="https://github.com/DevCheckOG/Crimson-Project/blob/main/screenshots/2024-02-02%2009_16_50-Crimson%20Launcher%20-%20v1.0.0.png">
+<img src="https://github.com/DevCheckOG/Crimson-Launcher/blob/master/screenshots/2024-02-02%2009_16_50-Crimson%20Launcher%20-%20v1.0.0.png">
 
 > **Menú de Versiones y Mods**
 
