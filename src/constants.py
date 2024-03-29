@@ -32,17 +32,17 @@ SOFTWARE.
 
 from enum import Enum
 
+
 class constants(Enum):
 
-    VERSION : str = 'v1.0.0'
-    CREATORS : str = '@DevCheckOG'
+    VERSION: str = "v1.0.0"
+    CREATORS: str = "@DevCheckOG"
 
-    DISCORD : str = 'https://discord.com/invite/DWfuQRsxwb'
-    GITHUB : str = 'https://github.com/DevCheckOG/Crimson-Project'
-    PAYPAL : str = 'https://paypal.me/DevCheck'
-    MINECRAFT_NEWS : str = 'https://www.minecraft.net/es-es/articles'
-    LAUNCHER_NEWS : str = '...'
+    DISCORD: str = "https://discord.com/invite/DWfuQRsxwb"
+    GITHUB: str = "https://github.com/DevCheckOG/Crimson-Project"
+    PAYPAL: str = "https://paypal.me/DevCheck"
+    MINECRAFT_NEWS: str = "https://www.minecraft.net/es-es/articles"
+    LAUNCHER_NEWS: str = "..."
 
-    FABRICMC : str = 'https://fabricmc.net/'
-    QUILT : str = 'https://quiltmc.org/'
-
+    FABRICMC: str = "https://fabricmc.net/"
+    QUILT: str = "https://quiltmc.org/"
